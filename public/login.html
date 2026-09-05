@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تسجيل الدخول | ميزان</title>
+<style>
+  /* ===== خط ثمانية (Thmanyah) ===== */
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Medium.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah Display';
+    src: url('assets/fonts/thmanyahserifdisplay-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --font-ui: 'Thmanyah', 'Segoe UI', Tahoma, Arial, sans-serif;
+    --font-display: 'Thmanyah Display', 'Thmanyah', 'Segoe UI', Georgia, serif;
+    --bg: #0b0c10;
+    --panel: #14161c;
+    --panel-2: #1b1e26;
+    --border: #262a35;
+    --text: #e8e9ec;
+    --muted: #9aa0ab;
+    --muted-2: #6d7380;
+    --accent: #d4a24c;
+    --teal: #2fbfb2;
+    --danger: #e06a5f;
+  }
+  * { box-sizing: border-box; }
+  button, input { font-family: inherit; }
+  body {
+    margin: 0;
+    font-family: var(--font-ui);
+    background:
+      radial-gradient(900px 460px at 20% -10%, rgba(47,191,178,0.10) 0%, transparent 60%),
+      radial-gradient(900px 460px at 90% 10%, rgba(212,162,76,0.10) 0%, transparent 55%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 38px 34px 30px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    animation: rise .4s cubic-bezier(.2,.7,.3,1) both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+  .logo-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+  .logo-wrap svg { width: 60px; height: 60px; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.4)); }
+  .box h1 {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: .2px;
+  }
+  .box .subtitle {
+    margin: 0 0 26px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+  label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .field { position: relative; margin-bottom: 16px; }
+  .field .lead-ico {
+    position: absolute;
+    inset-inline-start: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    stroke: var(--muted-2); fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    pointer-events: none;
+    transition: stroke .15s;
+  }
+  .field:focus-within .lead-ico { stroke: var(--accent); }
+  input {
+    width: 100%;
+    padding: 11px 13px;
+    padding-inline-start: 38px;
+    background: #0f1116;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input::placeholder { color: var(--muted-2); }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(212,162,76,0.15);
+  }
+  .toggle-pass {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted-2);
+    cursor: pointer;
+    padding: 4px;
+    width: auto;
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    transition: color .15s;
+  }
+  .toggle-pass:hover { color: var(--teal); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+  button[type=submit] {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent), #e0b95f);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+    box-shadow: 0 6px 18px rgba(212,162,76,0.18);
+  }
+  button[type=submit]:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(212,162,76,0.26); }
+  button[type=submit]:active { transform: translateY(0); }
+  .error {
+    color: var(--danger);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 14px;
+    min-height: 18px;
+  }
+  .shake { animation: shake .35s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+  }
+  .foot {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted-2);
+    font-size: 11.5px;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-label="شعار ميزان">
+        <defs>
+          <linearGradient id="mizanTeal" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2FBFB2"/>
+            <stop offset="100%" stop-color="#127A73"/>
+          </linearGradient>
+        </defs>
+        <rect x="106" y="40" width="8" height="118" rx="4" fill="#0E2B3D"/>
+        <rect x="40" y="52" width="140" height="6" rx="3" fill="#0E2B3D"/>
+        <circle cx="110" cy="55" r="9" fill="url(#mizanTeal)"/>
+        <path d="M40 58 L20 96 A22 22 0 0 0 60 96 Z" fill="none" stroke="#0E2B3D" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M180 58 L160 96 A22 22 0 0 0 200 96 Z" fill="none" stroke="#0E2B3D" stroke-width="6" stroke-linejoin="round"/>
+        <polyline points="163,96 172,80 178,104 184,88 190,96" fill="none" stroke="url(#mizanTeal)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32 96 L38 102 L50 88" fill="none" stroke="#0E2B3D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+        <path d="M78 158 L142 158 L152 174 L68 174 Z" fill="#0E2B3D"/>
+        <rect x="60" y="174" width="100" height="9" rx="4" fill="url(#mizanTeal)"/>
+      </svg>
+    </div>
+    <h1>لوحة ميزان</h1>
+    <p class="subtitle">تسجيل دخول المسؤول — مراقبة سلامة المزادات</p>
+    <form id="loginForm">
+      <label for="username">اسم المستخدم</label>
+      <div class="field">
+        <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+        <input type="text" id="username" autocomplete="username" placeholder="admin" required />
+      </div>
+      <label for="password">كلمة المرور</label>
+      <div class="field">
+        <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+        <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" required />
+        <button type="button" class="toggle-pass" id="togglePass" aria-label="إظهار كلمة المرور"></button>
+      </div>
+      <button type="submit">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-inline-end:6px;"><path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="m10 17-5-5 5-5"/><path d="M15 12H5"/></svg>
+        دخول
+      </button>
+      <div class="error" id="errorMsg"></div>
+    </form>
+    <div class="foot">
+      ميزان — طبقة تحليل سلوكي مستقلة عن التحقق من الهوية<br>
+      Isolation Forest + SHA-256
+    </div>
+  </div>
+
+<script>
+  // ملاحظة: هذا تسجيل دخول بسيط من جهة المتصفح، مناسب لنسخة تجريبية/عرض.
+  // لو المشروع سينتقل لبيئة إنتاج حقيقية بمستخدمين حساسين، يفضّل ربطه
+  // بتحقق من جهة السيرفر (API) بدل تخزين بيانات الدخول بالكود.
+  const ADMIN_USER = "admin";
+  const ADMIN_PASS = "mizan2026";
+
+  const passInput = document.getElementById('password');
+  const togglePass = document.getElementById('togglePass');
+
+  const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;"><path d="M10.6 6.1A9.6 9.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.3 3.9M6.3 7.9A17 17 0 0 0 2.5 12S6 18 12 18a9.4 9.4 0 0 0 3.5-.6"/><path d="M3 3l18 18"/></svg>';
+
+  function renderPassToggle() {
+    const hidden = passInput.type === 'password';
+    togglePass.innerHTML = hidden ? EYE : EYE_OFF;
+    togglePass.setAttribute('aria-label', hidden ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور');
+  }
+  renderPassToggle();
+
+  togglePass.addEventListener('click', () => {
+    passInput.type = passInput.type === 'text' ? 'password' : 'text';
+    renderPassToggle();
+    passInput.focus();
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('username').value.trim();
+    const p = passInput.value;
+    const errorMsg = document.getElementById('errorMsg');
+
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      sessionStorage.setItem('mizan_admin_auth', 'true');
+      window.location.href = 'index.html';
+    } else {
+      errorMsg.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+      const box = document.querySelector('.box');
+      box.classList.remove('shake');
+      void box.offsetWidth;
+      box.classList.add('shake');
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,2322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ميزان | لوحة التحقق من القدرة على السداد</title>
+<script src="vendor/chart.umd.js"></script>
+<style>
+  /* ===== خط ثمانية (Thmanyah) ===== */
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Light.woff2') format('woff2');
+    font-weight: 300; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Medium.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah';
+    src: url('assets/fonts/thmanyahsans-Black.woff2') format('woff2');
+    font-weight: 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Thmanyah Display';
+    src: url('assets/fonts/thmanyahserifdisplay-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --font-ui: 'Thmanyah', 'Segoe UI', Tahoma, Arial, sans-serif;
+    --font-display: 'Thmanyah Display', 'Thmanyah', 'Segoe UI', Georgia, serif;
+    --bg: #0b0c10;
+    --bg-grad: radial-gradient(1200px 500px at 15% -10%, #16202233 0%, transparent 60%),
+               radial-gradient(1000px 500px at 100% 0%, #2f2a1633 0%, transparent 55%);
+    --panel: #14161c;
+    --panel-2: #1b1e26;
+    --panel-3: #21242e;
+    --border: #262a35;
+    --border-soft: #1d2028;
+    --text: #e8e9ec;
+    --muted: #9aa0ab;
+    --muted-2: #6d7380;
+    --accent: #d4a24c;
+    --accent-soft: rgba(212,162,76,0.14);
+    --teal: #2fbfb2;
+    --teal-soft: rgba(47,191,178,0.14);
+    --danger: #e06a5f;
+    --danger-soft: rgba(224,106,95,0.14);
+    --safe: #4caf7d;
+    --safe-soft: rgba(76,175,125,0.14);
+    --warn2: #e0b95f;
+    --warn2-soft: rgba(224,185,95,0.14);
+    --radius-lg: 16px;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.32);
+    --shadow-glow: 0 0 0 1px var(--border), 0 10px 28px rgba(0,0,0,0.32);
+  }
+  html[data-theme="light"] {
+    --bg: #f4f5f7;
+    --bg-grad: radial-gradient(1200px 500px at 15% -10%, #d4a24c14 0%, transparent 60%),
+               radial-gradient(1000px 500px at 100% 0%, #2fbfb214 0%, transparent 55%);
+    --panel: #ffffff;
+    --panel-2: #eef0f3;
+    --panel-3: #e6e9ee;
+    --border: #dfe2e8;
+    --border-soft: #e8eaee;
+    --text: #1c1f26;
+    --muted: #5b6270;
+    --muted-2: #7c8291;
+    --accent: #b8822f;
+    --accent-soft: rgba(184,130,47,0.10);
+    --teal: #127a73;
+    --teal-soft: rgba(18,122,115,0.10);
+    --danger: #c8453b;
+    --danger-soft: rgba(200,69,59,0.10);
+    --safe: #2f8f5f;
+    --safe-soft: rgba(47,143,95,0.10);
+    --warn2: #b8862f;
+    --warn2-soft: rgba(184,134,47,0.10);
+    --shadow-sm: 0 1px 2px rgba(20,22,30,0.06);
+    --shadow-md: 0 10px 24px rgba(20,22,30,0.08);
+    --shadow-glow: 0 0 0 1px var(--border), 0 10px 24px rgba(20,22,30,0.08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-ui);
+    background-color: var(--bg);
+    background-image: var(--bg-grad);
+    background-repeat: no-repeat;
+    color: var(--text);
+    min-height: 100vh;
+    transition: background-color 0.2s, color 0.2s;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* عناصر النماذج لا ترث الخط تلقائيًا */
+  button, input, select, textarea { font-family: inherit; }
+  ::selection { background: var(--accent-soft); color: var(--text); }
+  a { color: inherit; }
+
+  /* ===== Header ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand svg { width: 40px; height: 40px; flex: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+  header .title h1 {
+    margin: 0 0 2px;
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 0.2px;
+  }
+  header .title p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .icon-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color .15s, transform .15s, background .15s;
+  }
+  .icon-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .icon-btn:active { transform: translateY(0); }
+  .icon-btn.logout:hover { border-color: var(--danger); color: var(--danger); }
+
+  main {
+    padding: 26px 32px 70px;
+    max-width: 1220px;
+    margin: 0 auto;
+  }
+
+  /* ===== Step guide ===== */
+  .steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 22px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 8px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 999px;
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    transition: border-color .2s, color .2s, background .2s;
+  }
+  html[dir="ltr"] .step { padding: 8px 8px 8px 14px; }
+  .step .num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    color: var(--muted);
+    flex: none;
+    transition: all .2s;
+  }
+  .step.active { border-color: var(--teal); color: var(--text); background: var(--teal-soft); }
+  .step.active .num { background: var(--teal); border-color: var(--teal); color: #06201d; }
+  .step.done { border-color: var(--safe); color: var(--text); }
+  .step.done .num { background: var(--safe); border-color: var(--safe); color: #06201d; }
+  .step-sep { width: 22px; height: 1px; background: var(--border); flex: none; }
+  .step.done + .step-sep { background: var(--safe); opacity: .6; }
+
+  /* ===== Info banner ===== */
+  .info-banner {
+    background: var(--panel);
+    border: 1px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .info-banner b { color: var(--teal); }
+  .info-banner .toggle-details {
+    color: var(--teal);
+    cursor: pointer;
+    font-size: 12.5px;
+    text-decoration: underline;
+    margin-inline-start: 6px;
+    user-select: none;
+  }
+  .info-banner .details {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows .25s ease, opacity .2s ease;
+    margin-top: 0;
+  }
+  .info-banner .details > div { overflow: hidden; }
+  .info-banner .details.open { grid-template-rows: 1fr; opacity: 1; margin-top: 10px; }
+  .info-banner .details .inner { color: var(--muted); padding-top: 2px; }
+
+  /* ===== Upload ===== */
+  .upload-box {
+    position: relative;
+    background: var(--panel);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 24px;
+    transition: border-color .15s, background .15s;
+  }
+  .upload-box.dragover { border-color: var(--teal); background: var(--teal-soft); }
+  .upload-box input[type=file] { display: none; }
+  .upload-icon { color: var(--muted-2); margin-bottom: 6px; }
+  .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, white));
+    color: #1a1a1a;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: transform .12s, box-shadow .12s;
+  }
+  .upload-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .upload-btn:active { transform: translateY(0); }
+  #fileName { color: var(--muted); font-size: 13px; margin-top: 12px; line-height: 1.7; }
+  .file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 8px 6px 14px;
+    font-size: 13px;
+  }
+  html[dir="ltr"] .file-chip { padding: 6px 14px 6px 8px; }
+  .file-chip .clear-file {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: none; background: var(--panel-3); color: var(--muted);
+    cursor: pointer; font-size: 13px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .file-chip .clear-file:hover { background: var(--danger); color: #fff; }
+  .drop-hint { font-size: 12px; color: var(--muted-2); margin-top: 8px; }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toolbar .left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: transform .12s, border-color .12s, background .12s, color .12s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .report-btn { border-color: var(--accent); color: var(--accent); }
+  .report-btn:hover { background: var(--accent); color: #1a1a1a; }
+  .newfile-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* ===== KPI cards ===== */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .card::before {
+    content: "";
+    position: absolute; inset-inline-start: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+  }
+  .card.warn::before { background: var(--danger); }
+  .card.ok::before { background: var(--safe); }
+  .card.mid::before { background: var(--warn2); }
+  .card .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card .label { color: var(--muted); font-size: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .card .icon-wrap {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); flex: none;
+  }
+  .card.warn .icon-wrap { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+  .card.ok .icon-wrap { color: var(--safe); background: var(--safe-soft); border-color: transparent; }
+  .card.mid .icon-wrap { color: var(--warn2); background: var(--warn2-soft); border-color: transparent; }
+  .card .value { font-size: 26px; font-weight: 700; letter-spacing: -0.3px; }
+  .card.warn .value { color: var(--danger); }
+  .card.ok .value { color: var(--safe); }
+  .card.mid .value { color: var(--warn2); }
+  .info-dot {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 1px solid var(--border); color: var(--muted-2);
+    font-size: 10px; display: inline-flex; align-items: center; justify-content: center;
+    cursor: help; flex: none;
+  }
+  .info-dot:hover { border-color: var(--teal); color: var(--teal); }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    animation: fadein .35s ease both;
+  }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .panel h2 { margin: 0 0 4px; font-family: var(--font-display); font-size: 17px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .panel .sub { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 640px; line-height: 1.7; }
+  .panel .count-badge {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+    font-size: 12px; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  }
+
+  .charts-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: stretch; }
+  @media (max-width: 820px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-box { display: flex; flex-direction: column; }
+  .canvas-holder { position: relative; height: 250px; }
+  .canvas-holder.donut { height: 200px; }
+  .legend-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; font-size: 12.5px; }
+  .legend-list .row { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .legend-list .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+  html[dir="ltr"] th, html[dir="ltr"] td { text-align: left; }
+  thead th { position: sticky; top: 0; background: var(--panel); z-index: 2; }
+  th { color: var(--muted); font-weight: 600; cursor: default; user-select: none; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { color: var(--teal); }
+  th.sortable .arrow { opacity: .4; margin-inline-start: 3px; }
+  th.sortable.sorted .arrow { opacity: 1; color: var(--teal); }
+  tbody tr { transition: background .12s; }
+  tr.flag td { color: var(--danger); }
+  tr.risk-row { cursor: pointer; }
+  tr.risk-row:hover td { background: var(--panel-2); }
+  tr.breakdown-row td { padding: 0; border-bottom: 1px solid var(--border); }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill.high { background: var(--danger-soft); color: var(--danger); }
+  .pill.mid  { background: var(--warn2-soft); color: var(--warn2); }
+  .pill.low  { background: var(--safe-soft); color: var(--safe); }
+
+  .risk-score-cell { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .risk-bar-track { width: 64px; height: 6px; border-radius: 4px; background: var(--panel-3); overflow: hidden; flex: none; }
+  .risk-bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+
+  .filters-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filters button {
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: border-color .12s, color .12s;
+  }
+  .filters button.active { border-color: var(--teal); color: var(--teal); background: var(--teal-soft); }
+
+  .search-wrap { position: relative; }
+  .search-wrap input {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 7px 14px 7px 32px;
+    font-size: 12.5px;
+    width: 200px;
+    max-width: 100%;
+  }
+  html[dir="rtl"] .search-wrap input { padding: 7px 32px 7px 14px; }
+  .search-wrap input:focus { outline: none; border-color: var(--teal); }
+  .search-wrap svg { position: absolute; top: 50%; transform: translateY(-50%); inset-inline-start: 10px; color: var(--muted-2); pointer-events: none; }
+
+  /* خلايا الجدول تفرض nowrap؛ تفاصيل العوامل داخل خلية فيجب إعادة الالتفاف
+     إليها صراحةً وإلا خرج النص من حدود البطاقة. */
+  .breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px; padding: 16px; background: var(--panel-2);
+    white-space: normal;
+  }
+  .breakdown .factor {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 13px; font-size: 12px;
+    white-space: normal; overflow-wrap: anywhere; min-width: 0;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .breakdown .factor .k {
+    color: var(--muted); line-height: 1.55; font-size: 11.5px;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .breakdown .factor .k .ico { margin-top: 2px; }
+  .breakdown .factor .v { font-weight: 700; font-size: 15px; line-height: 1.3; }
+  .breakdown .factor.unavailable { border-style: dashed; background: transparent; }
+  .breakdown .factor-bar { height: 4px; border-radius: 3px; background: var(--panel-3); overflow: hidden; margin: 1px 0 2px; }
+  .breakdown .factor-bar i { display: block; height: 100%; border-radius: 3px; transition: width .5s ease; }
+  .breakdown .factor-note {
+    font-size: 10.5px; color: var(--muted-2); line-height: 1.7;
+    white-space: normal; overflow-wrap: anywhere;
+  }
+  .breakdown .action, .breakdown .ai-block { white-space: normal; }
+  .coverage-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    border-radius: 999px; padding: 4px 11px; font-size: 11.5px; font-weight: 700;
+    border: 1px solid var(--border); color: var(--muted); background: var(--panel-2);
+    white-space: nowrap;
+  }
+  .coverage-badge.partial { border-color: var(--warn2); color: var(--warn2); background: var(--warn2-soft); }
+  .coverage-badge.full { border-color: var(--safe); color: var(--safe); background: var(--safe-soft); }
+  .breakdown .action { grid-column: 1 / -1; font-size: 12.5px; color: var(--teal); font-weight: 600; background: var(--teal-soft); padding: 8px 12px; border-radius: var(--radius-sm); }
+
+  /* ===== تفسير الذكاء الاصطناعي ===== */
+  .ai-block { grid-column: 1 / -1; }
+  .ai-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--accent); background: var(--accent-soft);
+    color: var(--accent); border-radius: var(--radius-sm);
+    padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s, transform .12s;
+  }
+  .ai-btn:hover:not(:disabled) { background: var(--accent); color: #1a1a1a; transform: translateY(-1px); }
+  .ai-btn:disabled { opacity: .6; cursor: default; }
+  .ai-result {
+    margin-top: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-inline-start: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+  }
+  .ai-result .ai-head {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 8px; font-size: 11.5px; color: var(--muted);
+    white-space: normal;
+  }
+  .ai-tag {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 2px 9px; font-weight: 700;
+  }
+  .ai-tag.local { background: var(--panel-3); color: var(--muted); }
+  .ai-reason {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 8px;
+    font-family: 'Consolas', monospace; font-size: 10.5px;
+    color: var(--muted-2); max-width: 100%; overflow-wrap: anywhere;
+  }
+  .ai-spinner {
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid var(--border); border-top-color: var(--accent);
+    animation: spin .8s linear infinite; display: inline-block;
+  }
+
+  .status-line { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 600; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 4px transparent; }
+  .dot.ok { background: var(--safe); box-shadow: 0 0 0 4px var(--safe-soft); }
+  .dot.bad { background: var(--danger); box-shadow: 0 0 0 4px var(--danger-soft); }
+
+  #emptyState { color: var(--muted); text-align: center; padding: 60px 20px; }
+  #emptyState svg { color: var(--muted-2); margin-bottom: 10px; }
+  #emptyState p { max-width: 380px; margin: 0 auto; line-height: 1.8; }
+
+  .hash { font-family: 'Consolas', monospace; font-size: 11px; color: var(--muted); word-break: break-all; background: var(--panel-2); padding: 8px 10px; border-radius: var(--radius-sm); }
+
+  .loading { color: var(--muted); text-align: center; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; font-size: 13.5px; }
+  .spinner { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--teal); animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .table-wrap { max-height: 460px; overflow: auto; border-radius: var(--radius-sm); }
+  .decision-btns { display: flex; gap: 6px; }
+  .decision-btns button {
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform .1s;
+  }
+  .decision-btns button:hover { transform: translateY(-1px); }
+  .decision-btns button.confirm.active { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .decision-btns button.dismiss.active { background: var(--safe); color: #fff; border-color: var(--safe); }
+  .decision-pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--panel-3); color: var(--muted); }
+
+  footer { text-align: center; color: var(--muted-2); font-size: 12px; padding: 30px 20px 10px; line-height: 1.9; }
+  footer .dot-sep { margin: 0 6px; opacity: .5; }
+
+  /* Toasts */
+  #toastContainer { position: fixed; bottom: 20px; inset-inline-end: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  html[dir="rtl"] #toastContainer { align-items: flex-start; }
+  .toast {
+    background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow-md);
+    color: var(--text); padding: 12px 16px; border-radius: var(--radius-sm);
+    font-size: 13px; display: flex; align-items: center; gap: 10px;
+    min-width: 220px; max-width: 340px;
+    animation: toast-in .25s ease both;
+  }
+  .toast.success { border-color: var(--safe); }
+  .toast.error { border-color: var(--danger); }
+  .toast .toast-mark {
+    width: 26px; height: 26px; border-radius: 50%; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--teal-soft); color: var(--teal);
+  }
+  .toast.success .toast-mark { background: var(--safe-soft); color: var(--safe); }
+  .toast.error .toast-mark { background: var(--danger-soft); color: var(--danger); }
+  .decision-btns button { display: inline-flex; align-items: center; gap: 5px; }
+  .decision-btns button .ico { opacity: .75; }
+  .decision-btns button.active .ico { opacity: 1; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ===== نظام الأيقونات ===== */
+  .ico {
+    width: 16px; height: 16px; flex: none;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    vertical-align: -3px;
+  }
+  .ico.sm { width: 13px; height: 13px; stroke-width: 2; }
+  .ico.lg { width: 20px; height: 20px; }
+  .ico.xl { width: 44px; height: 44px; stroke-width: 1.3; }
+
+  /* ===== الحركة ===== */
+  @keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes pop-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+  @keyframes sheen { to { background-position-x: -200%; } }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 currentColor; opacity: .5; }
+    70% { box-shadow: 0 0 0 7px transparent; opacity: 0; }
+    100% { box-shadow: 0 0 0 0 transparent; opacity: 0; }
+  }
+  .cards .card { animation: rise-in .45s cubic-bezier(.2,.7,.3,1) both; }
+  .cards .card:nth-child(1) { animation-delay: .02s; }
+  .cards .card:nth-child(2) { animation-delay: .08s; }
+  .cards .card:nth-child(3) { animation-delay: .14s; }
+  .cards .card:nth-child(4) { animation-delay: .20s; }
+  #results > .panel:nth-of-type(1) { animation-delay: .10s; }
+  #results > .panel:nth-of-type(2) { animation-delay: .16s; }
+  #results > .panel:nth-of-type(3) { animation-delay: .22s; }
+  #results > .panel:nth-of-type(4) { animation-delay: .28s; }
+  .card .value { transition: color .2s; }
+  .card.warn .icon-wrap .ico { animation: none; }
+  .step.active .num::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    color: var(--teal); animation: pulse-ring 2s ease-out infinite;
+  }
+  .step .num { position: relative; }
+
+  /* الهيكل العظمي أثناء التحميل */
+  .skeleton-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 18px; }
+  .skeleton {
+    border-radius: var(--radius); height: 92px;
+    background: linear-gradient(100deg, var(--panel) 30%, var(--panel-2) 50%, var(--panel) 70%);
+    background-size: 200% 100%;
+    animation: sheen 1.3s linear infinite;
+    border: 1px solid var(--border);
+  }
+
+  /* ===== تلميحات منسّقة بدل تلميح المتصفح ===== */
+  .tip { position: relative; }
+  .tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    inset-inline-end: -6px;
+    width: max-content;
+    max-width: 230px;
+    background: var(--panel-3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 11.5px;
+    line-height: 1.7;
+    font-weight: 400;
+    text-align: start;
+    white-space: normal;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition: opacity .16s, transform .16s;
+    z-index: 30;
+  }
+  .tip:hover::after, .tip:focus-visible::after { opacity: 1; transform: none; }
+
+  /* ===== مؤشر فتح الصف ===== */
+  .row-chevron {
+    display: inline-flex; color: var(--muted-2);
+    transition: transform .25s ease, color .2s;
+  }
+  tr.risk-row:hover .row-chevron { color: var(--teal); }
+  tr.risk-row.open .row-chevron { transform: rotate(90deg); color: var(--teal); }
+  html[dir="ltr"] tr.risk-row.open .row-chevron { transform: rotate(-90deg); }
+  tr.risk-row.open td { background: var(--panel-2); }
+
+  /* فتح تفاصيل العوامل بحركة انسيابية */
+  .breakdown-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s ease; }
+  .breakdown-wrap.open { grid-template-rows: 1fr; }
+  .breakdown-wrap > div { overflow: hidden; }
+  .breakdown .factor { animation: pop-in .3s ease both; }
+  .breakdown .factor:nth-child(2) { animation-delay: .03s; }
+  .breakdown .factor:nth-child(3) { animation-delay: .06s; }
+  .breakdown .factor:nth-child(4) { animation-delay: .09s; }
+  .breakdown .factor:nth-child(5) { animation-delay: .12s; }
+  .breakdown .factor:nth-child(6) { animation-delay: .15s; }
+  .breakdown .factor .k { display: flex; align-items: center; gap: 6px; }
+  .breakdown .factor .k .ico { width: 13px; height: 13px; color: var(--muted-2); }
+
+  /* ===== شاشة تشغيل التحليل ===== */
+  .analysis-run {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    animation: rise-in .35s ease both;
+  }
+  .run-head { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 600; margin-bottom: 14px; }
+  .run-head .spinner { width: 18px; height: 18px; border-width: 2px; }
+  .run-bar { height: 6px; border-radius: 999px; background: var(--panel-3); overflow: hidden; margin-bottom: 16px; position: relative; }
+  .run-bar-fill {
+    height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--teal), var(--accent));
+    transition: width .5s cubic-bezier(.3,.8,.4,1);
+  }
+  .run-bar-fill::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    background-size: 200% 100%;
+    animation: sheen 1.1s linear infinite;
+  }
+  .run-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .run-steps li {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px; color: var(--muted-2);
+    transition: color .3s;
+  }
+  .run-steps li .mark {
+    width: 20px; height: 20px; border-radius: 50%; flex: none;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: transparent; transition: all .3s;
+  }
+  .run-steps li.doing { color: var(--text); }
+  .run-steps li.doing .mark { border-color: var(--teal); color: var(--teal); animation: pulse-ring 1.4s ease-out infinite; }
+  .run-steps li.done { color: var(--muted); }
+  .run-steps li.done .mark { border-color: var(--safe); background: var(--safe-soft); color: var(--safe); }
+  .run-steps li .mark .ico { width: 12px; height: 12px; }
+  .run-note { margin-top: 12px; font-size: 11.5px; color: var(--muted-2); }
+
+  /* ===== حلقات النسب داخل البطاقات ===== */
+  .kpi-ring { width: 40px; height: 40px; flex: none; transform: rotate(-90deg); }
+  .kpi-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .kpi-ring .track { stroke: var(--panel-3); }
+  .kpi-ring .bar { transition: stroke-dashoffset 1.1s cubic-bezier(.2,.8,.3,1); }
+  .card .sub-note { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+
+  /* ===== دخول صفوف الجداول ===== */
+  @keyframes row-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  tbody tr.anim-row { animation: row-in .32s ease both; }
+
+  /* ===== إبراز لوحة عند الانتقال إليها ===== */
+  @keyframes flash-panel {
+    0% { box-shadow: 0 0 0 0 var(--teal); }
+    40% { box-shadow: 0 0 0 4px var(--teal-soft); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+  .panel.flash { animation: flash-panel 1.1s ease-out; border-color: var(--teal); }
+
+  /* أزرار داخل تفاصيل العوامل */
+  .ai-block { display: flex; flex-direction: column; gap: 10px; }
+  .block-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+    border-radius: var(--radius-sm); padding: 8px 14px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: border-color .15s, color .15s, transform .12s;
+  }
+  .link-btn:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-1px); }
+
+  .chart-hint { font-size: 11.5px; color: var(--muted-2); margin-top: 8px; text-align: center; }
+  .canvas-holder.wide { height: 260px; }
+
+  /* ===== إتاحة الوصول ===== */
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 16px; }
+    header .title h1 { font-size: 16.5px; }
+    header .title p { font-size: 12px; }
+    .header-actions { gap: 8px; }
+    main { padding: 18px 14px 50px; }
+    .panel { padding: 16px 14px; }
+    .upload-box { padding: 22px 14px; }
+    .cards { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+    .card .value { font-size: 22px; }
+    .search-wrap input { width: 100%; }
+    .search-wrap { flex: 1; }
+    #toastContainer { inset-inline: 12px; align-items: stretch; }
+    .toast { max-width: none; }
+  }
+
+  [data-i18n-hide-ar] { display: none; }
+  html[dir="ltr"] [data-i18n-hide-en] { display: none; }
+  html[dir="ltr"] [data-i18n-hide-ar] { display: inline; }
+</style>
+</head>
+<body>
+
+<div id="toastContainer"></div>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" aria-label="شعار ميزان">
+      <defs>
+        <linearGradient id="mizanTeal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2FBFB2"/>
+          <stop offset="100%" stop-color="#127A73"/>
+        </linearGradient>
+      </defs>
+      <rect x="106" y="40" width="8" height="118" rx="4" fill="#0E2B3D"/>
+      <rect x="40" y="52" width="140" height="6" rx="3" fill="#0E2B3D"/>
+      <circle cx="110" cy="55" r="9" fill="url(#mizanTeal)"/>
+      <path d="M40 58 L20 96 A22 22 0 0 0 60 96 Z" fill="none" stroke="#0E2B3D" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M180 58 L160 96 A22 22 0 0 0 200 96 Z" fill="none" stroke="#0E2B3D" stroke-width="6" stroke-linejoin="round"/>
+      <polyline points="163,96 172,80 178,104 184,88 190,96" fill="none" stroke="url(#mizanTeal)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M32 96 L38 102 L50 88" fill="none" stroke="#0E2B3D" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      <path d="M78 158 L142 158 L152 174 L68 174 Z" fill="#0E2B3D"/>
+      <rect x="60" y="174" width="100" height="9" rx="4" fill="url(#mizanTeal)"/>
+    </svg>
+    <div class="title">
+      <h1><span data-i18n-hide-en>ميزان</span><span data-i18n-hide-ar>Mizan</span> — <span data-i18n-hide-en>التحقق من قدرة المزايدين على السداد</span><span data-i18n-hide-ar>Bidder Payment Capability Check</span></h1>
+      <p>
+        <span data-i18n-hide-en>ارفع ملف مزايدات ليُحسب لكل مزايد مؤشر قدرته على إكمال السداد من بياناته المالية وسجله في المزادات، قبل اعتماد الترسية.</span>
+        <span data-i18n-hide-ar>Upload a bidding file to score every bidder's ability to complete payment, from their financial data and auction record, before the award is confirmed.</span>
+      </p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="langToggle"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"/></svg><span id="langLabel">EN</span></button>
+    <button class="icon-btn" id="themeToggle"><span id="themeIcon"></span><span id="themeLabel"></span></button>
+    <button class="icon-btn logout" id="logoutBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span data-i18n-hide-en>تسجيل الخروج</span><span data-i18n-hide-ar>Log out</span></button>
+  </div>
+</header>
+
+<main>
+
+  <div class="steps" id="stepsGuide">
+    <div class="step" data-step="1"><span class="num">1</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span><span data-i18n-hide-en>رفع الملف</span><span data-i18n-hide-ar>Upload file</span></span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="2"><span class="num">2</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3.5L9 5l4 14 2.5-7H21"/></svg><span><span data-i18n-hide-en>مراجعة المخاطرة</span><span data-i18n-hide-ar>Review risk</span></span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="3"><span class="num">3</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><span data-i18n-hide-en>اتخاذ القرار</span><span data-i18n-hide-ar>Decide</span></span></div>
+    <div class="step-sep"></div>
+    <div class="step" data-step="4"><span class="num">4</span><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 17v-3M12 17v-5M15 17v-2"/></svg><span><span data-i18n-hide-en>إصدار التقرير</span><span data-i18n-hide-ar>Export report</span></span></div>
+  </div>
+
+  <div class="info-banner">
+    <span data-i18n-hide-en><b>ليش ما تكفي الهوية؟</b> الدخول عبر إنفاذ وأبشر يثبت <b>مَن</b> هو المزايد، لكنه لا يثبت أنه <b>قادر</b> على السداد — وقد يدخل من عليه إيقاف خدمات أو قروض غير مسددة. حين يرسو المزاد على غير القادر تطول الإجراءات وتدخل القضاء ويُعاد طرح الأصل فيُباع بسعر أقل. ميزان يقيس القدرة على السداد قبل الترسية.</span>
+    <span data-i18n-hide-ar><b>Why isn't identity enough?</b> Infath and Absher verify <b>who</b> the bidder is, not whether they <b>can pay</b> — someone under service suspension or carrying unpaid loans can still enter. When an award goes to someone who cannot pay, the process drags into court, the asset is re-listed and often sells for less. Mizan measures payment capability before the award.</span>
+    <span class="toggle-details" id="toggleDetails">
+      <span data-i18n-hide-en>تفاصيل العوامل ▾</span><span data-i18n-hide-ar>Factor details ▾</span>
+    </span>
+    <div class="details" id="detailsBox"><div class="inner">
+      <span data-i18n-hide-en><b>الملاءة المالية:</b> إيقاف خدمات قائم، قروض غير مسددة مقارنةً بقيمة مزايدته، تعثرات مالية سابقة، وكفاية الضمان المقدَّم. <b>السجل في المزادات:</b> فوز سابق دون إكمال السداد، وتنبيه خاص حين تتجاوز مزايدته الحالية المبلغ الذي عجز عن سداده سابقًا. <b>مؤشرات سلوكية ثانوية:</b> الشذوذ الإحصائي وتكرار رفع السعر — تُعرض كسياق للمراجع البشري، ومجموع وزنها أقل من عتبة «متوسط» فلا ترفع تصنيف أحد وحدها.</span>
+      <span data-i18n-hide-ar><b>Financial solvency:</b> an active service suspension, unpaid loans against the bid value, past payment defaults, and whether the guarantee submitted is adequate. <b>Auction record:</b> past wins without completed payment, plus a dedicated alert when the current bid exceeds the amount they previously failed to pay. <b>Secondary behavioural signals:</b> statistical anomalies and price escalation — shown as context for the human reviewer, and weighted below the "medium" threshold so they can never raise a rating on their own.</span>
+    </div></div>
+  </div>
+
+  <div class="upload-box" id="uploadBox">
+    <div class="upload-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    </div>
+    <label for="csvFile" class="upload-btn">
+      <span data-i18n-hide-en>اختيار ملف CSV</span><span data-i18n-hide-ar>Choose CSV file</span>
+    </label>
+    <input type="file" id="csvFile" accept=".csv" />
+    <div id="fileName">
+      <span data-i18n-hide-en>لم يتم اختيار ملف بعد. الأعمدة المطلوبة: auction_id, event_time, bidder_id, bid_amount. الأعمدة الاختيارية: has_service_suspension, outstanding_loans, prior_payment_defaults, guarantee_amount, prior_unpaid_wins, prior_unpaid_bid_amount</span>
+      <span data-i18n-hide-ar>No file chosen yet. Required columns: auction_id, event_time, bidder_id, bid_amount. Optional: has_service_suspension, outstanding_loans, prior_payment_defaults, guarantee_amount, prior_unpaid_wins, prior_unpaid_bid_amount</span>
+    </div>
+    <div class="drop-hint"><span data-i18n-hide-en>أو اسحب الملف وأفلته هنا</span><span data-i18n-hide-ar>or drag &amp; drop the file here</span></div>
+  </div>
+
+  <div id="errorBox"></div>
+  <div id="loadingBox"></div>
+
+  <div id="results" style="display:none;">
+
+    <div class="toolbar">
+      <div class="left">
+        <button class="btn newfile-btn" id="newFileBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v5h-5"/></svg><span data-i18n-hide-en>تحليل ملف جديد</span><span data-i18n-hide-ar>Analyze new file</span></button>
+      </div>
+      <button class="btn report-btn" id="reportBtn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 17v-3M12 17v-5M15 17v-2"/></svg><span data-i18n-hide-en>إنشاء التقرير الأسبوعي</span><span data-i18n-hide-ar>Generate weekly report</span></button>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="top-row">
+          <div class="label">
+            <span class="icon-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M4 15h10M4 11h16M4 7h7"/></svg></span>
+            <span><span data-i18n-hide-en>إجمالي الأحداث</span><span data-i18n-hide-ar>Total events</span></span>
+          </div>
+          <span class="info-dot tip" tabindex="0" data-tip-ar="كل صفوف ملف CSV التي تمت معالجتها في هذا التحليل." data-tip-en="Every row of the uploaded CSV processed in this analysis.">i</span>
+        </div>
+        <div class="value" id="totalEvents">-</div>
+      </div>
+      <div class="card warn">
+        <div class="top-row">
+          <div class="label">
+            <span class="icon-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10.3 3.9 2.7 17.1a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg></span>
+            <span><span data-i18n-hide-en>أحداث مشتبه بها</span><span data-i18n-hide-ar>Flagged events</span></span>
+          </div>
+          <span class="info-dot tip" tabindex="0" data-tip-ar="أحداث صنّفها نموذج Isolation Forest كشاذة إحصائيًا مقارنة ببقية المزايدات." data-tip-en="Events the IsolationForest model classified as statistically abnormal.">i</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div class="value" id="flaggedEvents">-</div>
+            <div class="sub-note" id="flaggedNote"></div>
+          </div>
+          <svg class="kpi-ring" viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="track" cx="22" cy="22" r="18"></circle>
+            <circle class="bar" id="flaggedRing" cx="22" cy="22" r="18"
+              stroke="var(--danger)" stroke-dasharray="113" stroke-dashoffset="113"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="card mid">
+        <div class="top-row">
+          <div class="label">
+            <span class="icon-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>
+            <span><span data-i18n-hide-en>مزايدون بمخاطرة مرتفعة</span><span data-i18n-hide-ar>High-risk bidders</span></span>
+          </div>
+          <span class="info-dot tip" tabindex="0" data-tip-ar="مزايدون حصلوا على درجة مخاطرة 70 فأعلى من 100 — يُنصح بمراجعتهم قبل اعتماد الترسية." data-tip-en="Bidders scoring 70+ out of 100 — recommended for review before awarding.">i</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div class="value" id="highRiskCount">-</div>
+            <div class="sub-note" id="highRiskNote"></div>
+          </div>
+          <svg class="kpi-ring" viewBox="0 0 44 44" aria-hidden="true">
+            <circle class="track" cx="22" cy="22" r="18"></circle>
+            <circle class="bar" id="highRiskRing" cx="22" cy="22" r="18"
+              stroke="var(--warn2)" stroke-dasharray="113" stroke-dashoffset="113"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="card" id="chainCard">
+        <div class="top-row">
+          <div class="label">
+            <span class="icon-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 12 2 2 4-4"/><path d="M12 3a9 9 0 1 0 9 9"/><path d="M17 4.5 20 3l-1.5 3L21 8l-3-1.5L16 9l-1.5-3L12 4.5l3-1.5Z" opacity="0"/></svg></span>
+            <span><span data-i18n-hide-en>سلسلة التحقق التشفيري</span><span data-i18n-hide-ar>Hash chain</span></span>
+          </div>
+          <span class="info-dot tip" tabindex="0" data-tip-ar="تثبت أن سجل الأحداث لم يُعدَّل بعد تسجيله، عبر سلسلة بصمات SHA-256 متتالية." data-tip-en="Proves the event log wasn't altered after logging, via a chained SHA-256 hash sequence.">i</span>
+        </div>
+        <div class="value" id="chainStatus">-</div>
+      </div>
+    </div>
+
+    <div class="panel" id="riskPanel">
+      <div class="panel-head">
+        <div>
+          <h2><span data-i18n-hide-en>مؤشر القدرة على السداد</span><span data-i18n-hide-ar>Payment capability index</span></h2>
+          <p class="sub">
+            <span data-i18n-hide-en>الهوية متحقّقة لكل من في الجدول عبر إنفاذ/أبشر — المقاس هنا هو القدرة المالية على إكمال السداد. اضغط على أي صف لعرض تفاصيل العوامل.</span>
+            <span data-i18n-hide-ar>Every row's identity is already verified via Infath/Absher — what is measured here is the financial ability to complete payment. Click a row for the factor breakdown.</span>
+          </p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="coverage-badge" id="coverageBadge" style="display:none;"></span>
+          <span class="count-badge" id="riskCountBadge">-</span>
+        </div>
+      </div>
+      <div class="filters-row">
+        <div class="filters">
+          <button class="active" data-filter="all"><span data-i18n-hide-en>الكل</span><span data-i18n-hide-ar>All</span></button>
+          <button data-filter="مرتفع"><span data-i18n-hide-en>مرتفع</span><span data-i18n-hide-ar>High</span></button>
+          <button data-filter="متوسط"><span data-i18n-hide-en>متوسط</span><span data-i18n-hide-ar>Medium</span></button>
+          <button data-filter="منخفض"><span data-i18n-hide-en>منخفض</span><span data-i18n-hide-ar>Low</span></button>
+        </div>
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="riskSearch" data-i18n-ph-ar="ابحث برقم المزايد" data-i18n-ph-en="Search bidder ID" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="bidder_id"><span data-i18n-hide-en>المزايد</span><span data-i18n-hide-ar>Bidder</span></th>
+              <th data-sort="risk_score" class="sortable"><span data-i18n-hide-en>درجة المخاطرة</span><span data-i18n-hide-ar>Risk score</span><span class="arrow">↕</span></th>
+              <th><span data-i18n-hide-en>المستوى</span><span data-i18n-hide-ar>Level</span></th>
+              <th data-sort="anomaly_ratio" class="sortable"><span data-i18n-hide-en>% سلوك شاذ</span><span data-i18n-hide-ar>% abnormal</span><span class="arrow">↕</span></th>
+              <th data-sort="escalation_count" class="sortable"><span data-i18n-hide-en>رفع غير معتاد</span><span data-i18n-hide-ar>Unusual raises</span><span class="arrow">↕</span></th>
+              <th data-sort="guarantee_ratio" class="sortable"><span data-i18n-hide-en>تغطية الضمان</span><span data-i18n-hide-ar>Guarantee cover</span><span class="arrow">↕</span></th>
+              <th data-sort="prior_unpaid_wins" class="sortable"><span data-i18n-hide-en>فوز سابق بلا سداد</span><span data-i18n-hide-ar>Unpaid past wins</span><span class="arrow">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="riskTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2><span data-i18n-hide-en>الرسوم البيانية للمخاطرة</span><span data-i18n-hide-ar>Risk visualizations</span></h2>
+          <p class="sub">
+            <span data-i18n-hide-en>توزيع درجات الشذوذ لكل الأحداث، وتوزيع المزايدين حسب مستوى المخاطرة.</span>
+            <span data-i18n-hide-ar>Distribution of anomaly scores across all events, and bidders grouped by risk level.</span>
+          </p>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-box">
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+            <span data-i18n-hide-en>توزيع درجات الشذوذ (Anomaly Score)</span><span data-i18n-hide-ar>Anomaly score distribution</span>
+          </div>
+          <div class="canvas-holder"><canvas id="scoreChart"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+            <span data-i18n-hide-en>المزايدون حسب مستوى المخاطرة</span><span data-i18n-hide-ar>Bidders by risk level</span>
+          </div>
+          <div class="canvas-holder donut"><canvas id="levelChart"></canvas></div>
+          <div class="legend-list" id="levelLegend"></div>
+          <div class="chart-hint">
+            <span data-i18n-hide-en>اضغط على أي شريحة لتصفية الجدول بها</span>
+            <span data-i18n-hide-ar>Click a slice to filter the table by it</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-soft);">
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;font-weight:600;">
+          <span data-i18n-hide-en>مسار المزايدات عبر الوقت — النقاط الحمراء هي الأحداث المشتبه بها</span>
+          <span data-i18n-hide-ar>Bid trajectory over time — red points are the flagged events</span>
+        </div>
+        <div class="canvas-holder wide"><canvas id="timelineChart"></canvas></div>
+        <div class="chart-hint">
+          <span data-i18n-hide-en>كل نقطة مزايدة واحدة مرتبة زمنيًا؛ مرّر فوقها لعرض المزاد والمزايد ودرجة الشذوذ</span>
+          <span data-i18n-hide-ar>Each point is one bid in chronological order; hover for auction, bidder and anomaly score</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span data-i18n-hide-en>حالة سلسلة SHA-256</span><span data-i18n-hide-ar>SHA-256 chain status</span></h2>
+      <p class="sub">
+        <span data-i18n-hide-en>هذا التحقق مستقل عن تحليل السلوك أعلاه: يثبت أن نسخة السجل لم تتغير بعد تسجيلها، ولا يثبت أن الحدث الأصلي كان مشروعًا.</span>
+        <span data-i18n-hide-ar>Independent of the behaviour analysis above: it proves the record wasn't altered after logging — not that the original event itself was legitimate.</span>
+      </p>
+      <div class="status-line" style="margin-top:10px;">
+        <div class="dot ok" id="chainDot"></div>
+        <span id="chainText">-</span>
+      </div>
+      <div class="hash" id="finalHash" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="panel" id="flaggedPanel">
+      <div class="panel-head">
+        <div>
+          <h2>
+            <span data-i18n-hide-en>الأحداث المشتبه بها (أعلى 30) — قرار المسؤول</span>
+            <span data-i18n-hide-ar>Flagged events (top 30) — supervisor decision</span>
+          </h2>
+          <p class="sub">
+            <span data-i18n-hide-en>الأحداث الأكثر شذوذًا مرتبة أولاً. أكّد التلاعب أو ألغِ الشبهة، والقرار يُحفظ ويظهر في التقرير.</span>
+            <span data-i18n-hide-ar>Most anomalous events first. Confirm manipulation or dismiss the suspicion — decisions are saved and appear in the report.</span>
+          </p>
+        </div>
+        <span class="count-badge" id="flagCountBadge">-</span>
+      </div>
+      <div class="filters-row">
+        <div class="filters" id="decisionFilters">
+          <button class="active" data-decfilter="all"><span data-i18n-hide-en>الكل</span><span data-i18n-hide-ar>All</span></button>
+          <button data-decfilter="pending"><span data-i18n-hide-en>قيد المراجعة</span><span data-i18n-hide-ar>Pending</span></button>
+          <button data-decfilter="confirmed"><span data-i18n-hide-en>مؤكد التلاعب</span><span data-i18n-hide-ar>Confirmed</span></button>
+          <button data-decfilter="dismissed"><span data-i18n-hide-en>ملغى</span><span data-i18n-hide-ar>Dismissed</span></button>
+        </div>
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="flagSearch" data-i18n-ph-ar="ابحث برقم المزاد أو المزايد" data-i18n-ph-en="Search auction or bidder" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><span data-i18n-hide-en>المزاد</span><span data-i18n-hide-ar>Auction</span></th>
+              <th><span data-i18n-hide-en>المزايد</span><span data-i18n-hide-ar>Bidder</span></th>
+              <th><span data-i18n-hide-en>قيمة المزايدة</span><span data-i18n-hide-ar>Bid amount</span></th>
+              <th><span data-i18n-hide-en>وقت الحدث</span><span data-i18n-hide-ar>Time</span></th>
+              <th><span data-i18n-hide-en>درجة الشذوذ</span><span data-i18n-hide-ar>Anomaly score</span></th>
+              <th><span data-i18n-hide-en>القرار</span><span data-i18n-hide-ar>Decision</span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyState">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 13h6M9 17h4"/></svg>
+    <p>
+      <span data-i18n-hide-en>لا توجد بيانات معروضة بعد. ارفع ملف CSV أعلاه للبدء.</span>
+      <span data-i18n-hide-ar>No data yet. Upload a CSV above to start.</span>
+    </p>
+  </div>
+
+  <footer>
+    <span data-i18n-hide-en>مدعوم بنموذج Isolation Forest حقيقي (scikit-learn)</span><span data-i18n-hide-ar>Powered by a real IsolationForest model (scikit-learn)</span>
+    <span class="dot-sep">•</span>
+    <span data-i18n-hide-en>سلسلة تحقق SHA-256</span><span data-i18n-hide-ar>SHA-256 verification chain</span>
+    <span class="dot-sep">•</span>
+    <span data-i18n-hide-en>هذا مؤشر دعم قرار للمراجع البشري وليس حكمًا آليًا بوجود احتيال</span><span data-i18n-hide-ar>A decision-support signal for the human reviewer — not an automated fraud verdict</span>
+  </footer>
+</main>
+
+<script>
+// ===== حماية الدخول =====
+if (sessionStorage.getItem('mizan_admin_auth') !== 'true') {
+  window.location.href = 'login.html';
+}
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('mizan_admin_auth');
+  window.location.href = 'login.html';
+});
+
+// ===== أدوات مساعدة عامة =====
+function isEnglish() { return document.documentElement.getAttribute('dir') === 'ltr'; }
+
+// ===== مكتبة الأيقونات (SVG خطّي موحّد) =====
+const ICON_PATHS = {
+  file:      '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/>',
+  report:    '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 17v-3M12 17v-5M15 17v-2"/>',
+  refresh:   '<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v5h-5"/>',
+  sparkles:  '<path d="M12 3 13.6 8.4 19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6Z"/><path d="M18.5 15.5 19 17l1.5.5L19 18l-.5 1.5L18 18l-1.5-.5L18 17Z"/>',
+  alert:     '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.7 17.1a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
+  check:     '<path d="M20 6 9 17l-5-5"/>',
+  x:         '<path d="M18 6 6 18M6 6l12 12"/>',
+  shield:    '<path d="M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6Z"/><path d="m9 12 2 2 4-4"/>',
+  badge:     '<path d="M12 3l7 3v6c0 4.4-3 8.2-7 9-4-.8-7-4.6-7-9V6Z"/><circle cx="12" cy="10" r="2.2"/><path d="M8.6 16.4a4 4 0 0 1 6.8 0"/>',
+  activity:  '<path d="M3 12h3.5L9 5l4 14 2.5-7H21"/>',
+  trending:  '<path d="M3 17 9.5 10.5l3.5 3.5L21 6"/><path d="M15 6h6v6"/>',
+  link:      '<path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 1 0-5.7-5.7L11.9 6.4"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 1 0 5.7 5.7l1.2-1.2"/>',
+  wallet:    '<path d="M3 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M16 12.5h3.5"/><path d="M3 9.5h16"/>',
+  gavel:     '<path d="m4 20h9"/><path d="m9.5 13.5 5-5"/><path d="M11.6 6.3 15.9 2l5.1 5.1-4.3 4.3Z"/><path d="M6.9 11.1 11.2 6.8l1.7 1.7-4.3 4.3Z"/>',
+  users:     '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>',
+  list:      '<path d="M4 19h16M4 15h10M4 11h16M4 7h7"/>',
+  arrow:     '<path d="M5 12h13"/><path d="m12 5 7 7-7 7"/>',
+  chevron:   '<path d="m9 6 6 6-6 6"/>',
+  search:    '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  info:      '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  upload:    '<path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+  moon:      '<path d="M20 14.5A8.2 8.2 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/>',
+  sun:       '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>',
+  logout:    '<path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+  globe:     '<circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"/>',
+};
+
+function icon(name, cls = '') {
+  const path = ICON_PATHS[name];
+  if (!path) return '';
+  return '<svg class="ico ' + cls + '" viewBox="0 0 24 24" aria-hidden="true">' + path + '</svg>';
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const mark = type === 'success' ? icon('check') : type === 'error' ? icon('alert') : icon('info');
+  el.innerHTML = '<span class="toast-mark">' + mark + '</span><span>' + message + '</span>';
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .25s, transform .25s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(6px)';
+    setTimeout(() => el.remove(), 260);
+  }, 3400);
+}
+
+function animateValue(el, to) {
+  el.dataset.target = String(to);
+  if (el.textContent === String(to)) return;
+  // في التبويبات المخفية لا تعمل requestAnimationFrame، فنكتب القيمة مباشرة
+  // بدل ما تبقى الشرطة "-" ظاهرة للمستخدم.
+  if (document.hidden || typeof requestAnimationFrame !== 'function') {
+    el.textContent = to;
+    return;
+  }
+  const from = 0;
+  const dur = 600;
+  const start = performance.now();
+  const step = (now) => {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  // شبكة أمان: لو تعطّلت الإطارات لأي سبب، تُكتب القيمة النهائية على أي حال.
+  setTimeout(() => {
+    if (el.dataset.target === String(to)) el.textContent = to;
+  }, dur + 150);
+}
+
+// ===== شاشة تشغيل التحليل (مراحل متتابعة) =====
+// المراحل تصف ما ينفّذه السيرفر فعليًا بالترتيب؛ التوقيت بينها تقريبي،
+// والمرحلة الأخيرة لا تُغلق إلا عند وصول نتيجة التحليل فعلًا.
+const RUN_STAGES = [
+  { ar: 'قراءة ملف CSV والتحقق من الأعمدة', en: 'Reading the CSV and validating columns' },
+  { ar: 'اشتقاق مؤشرات كل مزايدة (التكرار، الترتيب، الفواصل الزمنية)', en: 'Deriving per-bid features (frequency, rank, time gaps)' },
+  { ar: 'تدريب نموذج Isolation Forest وتصنيف الأحداث الشاذة', en: 'Training Isolation Forest and flagging anomalies' },
+  { ar: 'بناء سلسلة تحقق SHA-256 على السجل', en: 'Building the SHA-256 verification chain' },
+  { ar: 'تجميع مؤشر المخاطرة لكل مزايد', en: 'Aggregating each bidder’s risk index' },
+];
+
+function startAnalysisRunner(en) {
+  loadingBox.innerHTML =
+    '<div class="analysis-run">' +
+      '<div class="run-head"><span class="spinner"></span>' +
+        (en ? 'Running the analysis…' : 'جارٍ تشغيل التحليل...') +
+      '</div>' +
+      '<div class="run-bar"><div class="run-bar-fill" id="runBarFill"></div></div>' +
+      '<ul class="run-steps" id="runSteps">' +
+        RUN_STAGES.map((s, i) =>
+          '<li data-i="' + i + '"><span class="mark">' + icon('check', 'sm') + '</span>' +
+          '<span>' + (en ? s.en : s.ar) + '</span></li>'
+        ).join('') +
+      '</ul>' +
+      '<div class="run-note">' +
+        (en ? 'Stage timings are indicative; results appear the moment the server responds.'
+            : 'توقيت المراحل تقريبي، وتظهر النتائج فور ورود رد السيرفر.') +
+      '</div>' +
+    '</div>' +
+    '<div class="skeleton-cards">' +
+      '<div class="skeleton"></div><div class="skeleton"></div>' +
+      '<div class="skeleton"></div><div class="skeleton"></div>' +
+    '</div>';
+
+  const items = [...document.querySelectorAll('#runSteps li')];
+  const fill = document.getElementById('runBarFill');
+  let index = 0;
+  let stopped = false;
+
+  const paint = () => {
+    items.forEach((li, i) => {
+      li.classList.toggle('done', i < index);
+      li.classList.toggle('doing', i === index);
+    });
+    // الشريط يقف عند 85% حتى يصل الرد فعلًا
+    if (fill) fill.style.width = Math.min(85, (index / items.length) * 100 + 8) + '%';
+  };
+  paint();
+
+  const timer = setInterval(() => {
+    if (stopped) return;
+    if (index < items.length - 1) { index++; paint(); }
+  }, 520);
+
+  return {
+    finish() {
+      stopped = true;
+      clearInterval(timer);
+      index = items.length;
+      paint();
+      if (fill) fill.style.width = '100%';
+    },
+    abort() {
+      stopped = true;
+      clearInterval(timer);
+    },
+  };
+}
+
+function setStep(n) {
+  document.querySelectorAll('.step').forEach(stepEl => {
+    const s = Number(stepEl.dataset.step);
+    stepEl.classList.remove('active', 'done');
+    if (s < n) stepEl.classList.add('done');
+    else if (s === n) stepEl.classList.add('active');
+  });
+}
+setStep(1);
+
+// ===== اللغة =====
+const langToggle = document.getElementById('langToggle');
+function applyTooltips() {
+  const en = isEnglish();
+  document.querySelectorAll('[data-tip-ar]').forEach(el => {
+    const text = en ? el.dataset.tipEn : el.dataset.tipAr;
+    el.setAttribute('data-tip', text);       // تلميح منسّق يظهر فورًا
+    el.setAttribute('aria-label', text);
+  });
+  document.querySelectorAll('[data-i18n-ph-ar]').forEach(el => {
+    el.setAttribute('placeholder', en ? el.dataset.i18nPhEn : el.dataset.i18nPhAr);
+  });
+}
+function applyLang(lang) {
+  document.documentElement.setAttribute('dir', lang === 'en' ? 'ltr' : 'rtl');
+  document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'ar');
+  document.getElementById('langLabel').textContent = lang === 'en' ? 'عربي' : 'EN';
+  localStorage.setItem('mizan_lang', lang);
+  applyTooltips();
+}
+applyLang(localStorage.getItem('mizan_lang') || 'ar');
+langToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('dir') === 'ltr' ? 'ar' : 'en';
+  applyLang(current);
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+  if (lastData) renderResults(lastData, true);
+});
+
+// ===== الوضع الفاتح/الداكن =====
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('mizan_theme', theme);
+  // الزر يعرض الوضع الذي سينتقل إليه عند الضغط
+  const en = isEnglish();
+  const next = theme === 'light' ? 'dark' : 'light';
+  document.getElementById('themeIcon').innerHTML = icon(next === 'dark' ? 'moon' : 'sun');
+  document.getElementById('themeLabel').textContent =
+    next === 'dark' ? (en ? 'Dark' : 'داكن') : (en ? 'Light' : 'فاتح');
+}
+applyTheme(localStorage.getItem('mizan_theme') || 'dark');
+themeToggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  applyTheme(current);
+  if (lastData) {
+    drawChart(lastData.rows);
+    drawLevelChart(lastData.bidder_risk || []);
+    drawTimelineChart(lastData.rows);
+  }
+});
+
+// ===== شرح العوامل (طي/فرد) =====
+document.getElementById('toggleDetails').addEventListener('click', () => {
+  document.getElementById('detailsBox').classList.toggle('open');
+});
+
+// ===== رفع الملف وتحليله =====
+const fileInput = document.getElementById('csvFile');
+const fileName = document.getElementById('fileName');
+const errorBox = document.getElementById('errorBox');
+const loadingBox = document.getElementById('loadingBox');
+const resultsBox = document.getElementById('results');
+const emptyState = document.getElementById('emptyState');
+const uploadBox = document.getElementById('uploadBox');
+let scoreChartInstance = null;
+let levelChartInstance = null;
+let lastData = null;
+let currentRiskFilter = 'all';
+let currentRiskSearch = '';
+let currentDecisionFilter = 'all';
+let currentFlagSearch = '';
+let currentSort = { key: 'risk_score', dir: -1 };
+
+function humanFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  const kb = bytes / 1024;
+  if (kb < 1024) return kb.toFixed(1) + ' KB';
+  return (kb / 1024).toFixed(1) + ' MB';
+}
+
+async function handleFile(file) {
+  if (!file) return;
+  const en = isEnglish();
+  fileName.innerHTML = '<div class="file-chip">' + icon('file') + ' ' + file.name + ' · ' + humanFileSize(file.size) +
+    '<button type="button" class="clear-file" id="clearFileBtn" title="' + (en ? 'Remove' : 'إزالة') + '">✕</button></div>';
+  document.getElementById('clearFileBtn').addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    fileInput.value = '';
+    lastData = null;
+    resultsBox.style.display = 'none';
+    errorBox.innerHTML = '';
+    loadingBox.innerHTML = '';
+    emptyState.style.display = 'block';
+    setStep(1);
+    fileName.innerHTML = en
+      ? '<span>No file chosen yet. Required columns: auction_id, event_time, bidder_id, bid_amount. Optional: has_service_suspension, outstanding_loans, prior_payment_defaults, guarantee_amount, prior_unpaid_wins, prior_unpaid_bid_amount</span>'
+      : '<span>لم يتم اختيار ملف بعد. الأعمدة المطلوبة: auction_id, event_time, bidder_id, bid_amount. الأعمدة الاختيارية: has_service_suspension, outstanding_loans, prior_payment_defaults, guarantee_amount, prior_unpaid_wins, prior_unpaid_bid_amount</span>';
+  });
+
+  errorBox.innerHTML = '';
+  const runner = startAnalysisRunner(en);
+  resultsBox.style.display = 'none';
+  emptyState.style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      runner.abort();
+      loadingBox.innerHTML = '';
+      const msg = (en && data.error_en ? data.error_en : data.error) ||
+        (en ? 'An unexpected error occurred' : 'حدث خطأ غير متوقع');
+      errorBox.innerHTML = '<div class="error-box">' + icon('alert', 'lg') + '<span>' + msg + '</span></div>';
+      emptyState.style.display = 'block';
+      showToast(en ? 'Analysis failed' : 'فشل التحليل', 'error');
+      return;
+    }
+
+    // إغلاق كل المراحل ثم إظهار النتائج بعد لحظة قصيرة ليُرى اكتمالها
+    runner.finish();
+    await new Promise(r => setTimeout(r, 420));
+    loadingBox.innerHTML = '';
+
+    lastData = data;
+    currentRiskFilter = 'all';
+    currentRiskSearch = '';
+    currentDecisionFilter = 'all';
+    currentFlagSearch = '';
+    document.querySelectorAll('.filters button[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+    document.querySelectorAll('#decisionFilters button').forEach(b => b.classList.toggle('active', b.dataset.decfilter === 'all'));
+    const riskSearchInput = document.getElementById('riskSearch');
+    const flagSearchInput = document.getElementById('flagSearch');
+    if (riskSearchInput) riskSearchInput.value = '';
+    if (flagSearchInput) flagSearchInput.value = '';
+    renderResults(data);
+    setStep(2);
+    showToast(en ? `Analyzed ${data.summary.total_events} events successfully` : `تم تحليل ${data.summary.total_events} حدث بنجاح`, 'success');
+  } catch (err) {
+    runner.abort();
+    loadingBox.innerHTML = '';
+    errorBox.innerHTML = '<div class="error-box">' + icon('alert', 'lg') + '<span>' + err.message + '</span></div>';
+    emptyState.style.display = 'block';
+    showToast(en ? 'Connection error' : 'خطأ في الاتصال', 'error');
+  }
+}
+
+fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+document.getElementById('newFileBtn').addEventListener('click', () => {
+  uploadBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+// ===== السحب والإفلات =====
+['dragenter', 'dragover'].forEach(evt => {
+  uploadBox.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    uploadBox.classList.add('dragover');
+  });
+});
+['dragleave', 'drop'].forEach(evt => {
+  uploadBox.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    uploadBox.classList.remove('dragover');
+  });
+});
+uploadBox.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) {
+    try {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInput.files = dt.files;
+    } catch (err) { /* ignore, still analyze directly */ }
+    handleFile(file);
+  }
+});
+
+// ===== قرارات المسؤول (أحداث فردية) =====
+function decisionKey(row) {
+  return 'mizan_decision_' + (row.hash || (row.auction_id + '_' + row.bidder_id + '_' + row.event_time));
+}
+function getDecision(row) {
+  return localStorage.getItem(decisionKey(row)) || 'pending';
+}
+function setDecision(row, value) {
+  localStorage.setItem(decisionKey(row), value);
+}
+
+let lastFlaggedRows = [];
+
+function renderResults(data, skipStep) {
+  const { summary, rows, bidder_risk } = data;
+  resultsBox.style.display = 'block';
+
+  animateValue(document.getElementById('totalEvents'), summary.total_events);
+  animateValue(document.getElementById('flaggedEvents'), summary.flagged_events);
+  animateValue(document.getElementById('highRiskCount'), summary.high_risk_bidders ?? 0);
+
+  const chainOk = summary.chain_valid;
+  const isEn = isEnglish();
+  document.getElementById('chainStatus').textContent = chainOk ? (isEn ? 'Valid' : 'سليمة') : (isEn ? 'Broken' : 'مخترقة');
+  document.getElementById('chainCard').className = 'card ' + (chainOk ? 'ok' : 'warn');
+  document.getElementById('chainDot').className = 'dot ' + (chainOk ? 'ok' : 'bad');
+  document.getElementById('chainText').textContent = chainOk
+    ? (isEn ? `${summary.chain_length} chained SHA-256 hashes generated with no break.` : `تم توليد ${summary.chain_length} تجزئة SHA-256 متسلسلة دون أي انقطاع.`)
+    : (isEn ? 'A break was detected in the verification chain.' : 'تم اكتشاف كسر في سلسلة التحقق.');
+  document.getElementById('finalHash').textContent = (isEn ? 'Final hash: ' : 'آخر تجزئة: ') + summary.final_hash;
+
+  // حلقات النسب داخل البطاقات (محيط الدائرة ≈ 113 لنصف قطر 18)
+  const total = summary.total_events || 1;
+  const flaggedPct = Math.min(100, (summary.flagged_events / total) * 100);
+  const bidders = (bidder_risk || []).length || 1;
+  const highPct = Math.min(100, ((summary.high_risk_bidders ?? 0) / bidders) * 100);
+  setRing('flaggedRing', flaggedPct);
+  setRing('highRiskRing', highPct);
+  document.getElementById('flaggedNote').textContent = isEn
+    ? `${flaggedPct.toFixed(1)}% of all events`
+    : `${flaggedPct.toFixed(1)}% من إجمالي الأحداث`;
+  document.getElementById('highRiskNote').textContent = isEn
+    ? `of ${bidders} bidders (${highPct.toFixed(0)}%)`
+    : `من ${bidders} مزايد (${highPct.toFixed(0)}%)`;
+
+  renderCoverageBadge(summary, bidder_risk || [], isEn);
+  renderRiskTable(bidder_risk || []);
+  drawLevelChart(bidder_risk || []);
+  drawTimelineChart(rows);
+
+  const sorted = [...rows].sort((a, b) => a.anomaly_score - b.anomaly_score);
+  lastFlaggedRows = sorted.filter(r => r.anomaly_flag).slice(0, 30);
+  renderFlaggedTable();
+
+  drawChart(rows);
+  applyTooltips();
+  if (!skipStep) setStep(2);
+}
+
+// شارة اكتمال البيانات: تقول للمشرف صراحةً أي محاور المؤشر أمكن تقييمها
+// وأيها بقي بلا بيانات — حتى لا تُقرأ درجة منخفضة كبراءة وهي نقص بيانات.
+const FIELD_LABELS = {
+  has_service_suspension: { ar: 'إيقاف الخدمات', en: 'Service suspension' },
+  outstanding_loans: { ar: 'القروض غير المسددة', en: 'Unpaid loans' },
+  prior_payment_defaults: { ar: 'التعثرات المالية', en: 'Payment defaults' },
+  guarantee_amount: { ar: 'الضمان المقدَّم', en: 'Guarantee submitted' },
+  prior_unpaid_wins: { ar: 'فوز سابق بلا سداد', en: 'Unpaid past wins' },
+  prior_unpaid_bid_amount: { ar: 'قيمة المزايدة المتعثرة', en: 'Unpaid bid amount' },
+};
+
+function renderCoverageBadge(summary, bidderRisk, isEn) {
+  const badge = document.getElementById('coverageBadge');
+  if (!badge) return;
+
+  const sources = summary.field_sources;
+  const sample = bidderRisk[0];
+  if (!sources || !sample || typeof sample.data_completeness !== 'number') {
+    badge.style.display = 'none';
+    return;
+  }
+
+  const missing = Object.keys(sources).filter(k => sources[k] !== 'uploaded');
+  const pct = sample.data_completeness;
+  badge.style.display = '';
+  badge.className = 'coverage-badge ' + (missing.length === 0 ? 'full' : 'partial');
+
+  if (missing.length === 0) {
+    badge.innerHTML = icon('check', 'sm') +
+      (isEn ? 'Data coverage 100% — all factors evaluated' : 'تغطية البيانات ١٠٠٪ — كل العوامل مُقيَّمة');
+    badge.removeAttribute('data-tip');
+    badge.classList.remove('tip');
+    return;
+  }
+
+  const names = missing.map(k => FIELD_LABELS[k] ? (isEn ? FIELD_LABELS[k].en : FIELD_LABELS[k].ar) : k);
+  badge.innerHTML = icon('alert', 'sm') +
+    (isEn ? `Data coverage ${pct}% — ${missing.length} factor(s) unavailable`
+          : `تغطية البيانات ${pct}٪ — ${missing.length} من العوامل غير متوفرة`);
+  badge.classList.add('tip');
+  badge.setAttribute('tabindex', '0');
+  badge.setAttribute('data-tip', (isEn
+    ? 'Missing from the uploaded file: '
+    : 'غير موجود في الملف المرفوع: ') + names.join(isEn ? ', ' : '، '));
+}
+
+// تصفية جدول المزايدين على مستوى مخاطرة معيّن (من الأزرار أو من الرسم الحلقي)
+function applyRiskLevelFilter(level) {
+  currentRiskFilter = level;
+  document.querySelectorAll('.filters button[data-filter]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === level);
+  });
+  if (lastData) renderRiskTable(lastData.bidder_risk || []);
+  const panel = document.getElementById('riskPanel');
+  if (panel) {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    panel.classList.remove('flash');
+    void panel.offsetWidth;
+    panel.classList.add('flash');
+  }
+}
+
+// حلقة نسبة داخل بطاقة: تُرسم من الصفر إلى النسبة المطلوبة
+function setRing(id, percent) {
+  const ring = document.getElementById(id);
+  if (!ring) return;
+  const circumference = 113;
+  ring.style.strokeDashoffset = circumference;
+  void ring.getBoundingClientRect();
+  ring.style.strokeDashoffset = circumference * (1 - Math.max(0, Math.min(100, percent)) / 100);
+}
+
+// ===== جدول مؤشر مخاطرة المزايدين =====
+function renderRiskTable(bidderRisk) {
+  const isEn = isEnglish();
+  const tbody = document.getElementById('riskTableBody');
+  tbody.innerHTML = '';
+
+  let list = [...bidderRisk];
+  if (currentRiskFilter !== 'all') {
+    list = list.filter(r => r.risk_level === currentRiskFilter);
+  }
+  if (currentRiskSearch.trim()) {
+    const q = currentRiskSearch.trim().toLowerCase();
+    list = list.filter(r => String(r.bidder_id).toLowerCase().includes(q));
+  }
+  list.sort((a, b) => (a[currentSort.key] - b[currentSort.key]) * currentSort.dir);
+
+  document.getElementById('riskCountBadge').textContent =
+    (isEn ? `${list.length} of ${bidderRisk.length} bidders` : `${list.length} من ${bidderRisk.length} مزايد`);
+
+  // سهم الفرز يعكس العمود والاتجاه الفعليين
+  document.querySelectorAll('th.sortable').forEach(th => {
+    const active = th.dataset.sort === currentSort.key;
+    th.classList.toggle('sorted', active);
+    const arrow = th.querySelector('.arrow');
+    if (arrow) arrow.textContent = active ? (currentSort.dir === -1 ? '↓' : '↑') : '↕';
+    th.setAttribute('aria-sort', active ? (currentSort.dir === -1 ? 'descending' : 'ascending') : 'none');
+  });
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">${isEn ? 'No bidders in this category' : 'لا يوجد مزايدون ضمن هذا التصنيف'}</td></tr>`;
+    return;
+  }
+
+  const levelClass = { 'مرتفع': 'high', 'متوسط': 'mid', 'منخفض': 'low' };
+  const levelColorVar = { 'مرتفع': '--danger', 'متوسط': '--warn2', 'منخفض': '--safe' };
+
+  list.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'risk-row';
+    const levelLabel = isEn ? r.risk_level_en : r.risk_level;
+    const colorVar = levelColorVar[r.risk_level] || '--muted';
+    tr.innerHTML = `
+      <td>
+        <span style="display:inline-flex;align-items:center;gap:8px;">
+          <span class="row-chevron">${icon('chevron', 'sm')}</span>
+          <b>${r.bidder_id}</b>
+        </span>
+      </td>
+      <td>
+        <div class="risk-score-cell">
+          <b>${r.risk_score}</b><span style="color:var(--muted);font-size:11px;">/100</span>
+          <div class="risk-bar-track"><div class="risk-bar-fill" data-target="${r.risk_score}" style="width:0%;background:var(${colorVar});"></div></div>
+        </div>
+      </td>
+      <td><span class="pill ${levelClass[r.risk_level]}">${levelLabel}</span></td>
+      <td>${r.anomaly_ratio}%</td>
+      <td>${r.escalation_count}</td>
+      <td>${guaranteeCell(r, isEn)}</td>
+      <td>${r.prior_unpaid_wins}</td>
+    `;
+    tr.classList.add('anim-row');
+    tr.style.animationDelay = Math.min(idx, 14) * 22 + 'ms';
+    tr.addEventListener('click', () => toggleBreakdown(tr, r, isEn));
+    tbody.appendChild(tr);
+  });
+
+  // تنمو أشرطة المخاطرة من الصفر: إعادة تخطيط ثم ضبط العرض النهائي
+  void tbody.offsetHeight;
+  tbody.querySelectorAll('.risk-bar-fill[data-target]').forEach(bar => {
+    bar.style.width = bar.dataset.target + '%';
+  });
+}
+
+function closeBreakdown(row) {
+  const wrap = row.querySelector('.breakdown-wrap');
+  const opener = row.previousElementSibling;
+  if (opener) opener.classList.remove('open');
+  if (!wrap) { row.remove(); return; }
+  wrap.classList.remove('open');
+  setTimeout(() => row.remove(), 280);
+}
+
+// خلية تغطية الضمان: تفرّق بين "غير متوفر" و"تغطية ضعيفة"
+function guaranteeCell(r, isEn) {
+  if (r.guarantee_ratio === null || r.guarantee_ratio === undefined) {
+    return '<span style="color:var(--muted-2)" title="' +
+      (isEn ? 'No guarantee data in the uploaded file' : 'لا توجد بيانات ضمان في الملف المرفوع') +
+      '">' + (isEn ? 'n/a' : 'غير متوفر') + '</span>';
+  }
+  const weak = r.guarantee_ratio < 20;
+  return '<span style="color:' + (weak ? 'var(--danger)' : 'var(--safe)') + ';font-weight:700;">' +
+    r.guarantee_ratio + '%</span>';
+}
+
+// أيقونة كل عامل حسب مفتاحه
+const FACTOR_ICONS = {
+  service_suspension: 'alert',
+  loans: 'wallet',
+  exceeds_prior: 'trending',
+  anomaly: 'activity',
+  escalation: 'trending',
+  unpaid_wins: 'wallet',
+  guarantee: 'shield',
+  payment_defaults: 'wallet',
+};
+
+// بطاقات العوامل: تُبنى من الخادم، والعامل الذي تغيب بيانته يظهر
+// "غير متوفر" صراحةً بدل أن يُعرض صفرًا يوهم بالسلامة.
+function renderFactorCards(r, isEn) {
+  const factors = r.factors || [];
+  if (factors.length === 0) return '';
+
+  return factors.map(f => {
+    const label = isEn ? f.label_en : f.label;
+    const detail = isEn ? f.detail_en : f.detail;
+    const ico = icon(FACTOR_ICONS[f.key] || 'info');
+
+    if (!f.available) {
+      return '<div class="factor unavailable">' +
+        '<div class="k">' + ico + escapeHtml(label) + '</div>' +
+        '<div class="v" style="color:var(--muted-2);font-size:12.5px;">' +
+          (isEn ? 'Not available' : 'غير متوفر') +
+        '</div>' +
+        '<div class="factor-note">' + escapeHtml(detail) + '</div>' +
+      '</div>';
+    }
+
+    const pct = f.max_points ? Math.round((f.points / f.max_points) * 100) : 0;
+    const tone = pct >= 60 ? 'var(--danger)' : pct >= 25 ? 'var(--warn2)' : 'var(--safe)';
+    return '<div class="factor">' +
+      '<div class="k">' + ico + escapeHtml(label) + '</div>' +
+      '<div class="v">' + f.points + '<span style="color:var(--muted);font-size:11px;"> / ' + f.max_points + '</span></div>' +
+      '<div class="factor-bar"><i style="width:' + pct + '%;background:' + tone + '"></i></div>' +
+      '<div class="factor-note">' + escapeHtml(detail) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleBreakdown(tr, r, isEn) {
+  const next = tr.nextElementSibling;
+  if (next && next.classList.contains('breakdown-row')) {
+    closeBreakdown(next);
+    return;
+  }
+  document.querySelectorAll('.breakdown-row').forEach(closeBreakdown);
+  const bd = document.createElement('tr');
+  bd.className = 'breakdown-row';
+  bd.innerHTML = `
+    <td colspan="7">
+      <div class="breakdown-wrap"><div>
+      <div class="breakdown">
+        <div class="factor"><div class="k">${icon('badge')}${isEn ? 'Identity' : 'الهوية'}</div><div class="v" style="color:var(--safe)">${isEn ? 'Verified via Infath/Absher' : 'متحققة عبر إنفاذ/أبشر'}</div></div>
+        ${renderFactorCards(r, isEn)}
+        <div class="factor"><div class="k">${icon('gavel')}${isEn ? 'Auctions involved' : 'المزادات المشارك بها'}</div><div class="v">${r.auctions_involved.join('، ')}</div></div>
+        <div class="action">${icon('arrow')}<span>${isEn ? r.recommended_action_en : r.recommended_action}</span></div>
+        <div class="ai-block">
+          <div class="block-actions">
+          <button class="ai-btn" type="button">
+            ${icon('sparkles')}
+            <span>${isEn ? 'AI explanation of the risk' : 'تفسير سبب الخطر بالذكاء الاصطناعي'}</span>
+          </button>
+          <button class="link-btn events-btn" type="button">
+            ${icon('list')}
+            <span>${isEn ? 'Show this bidder’s flagged events' : 'عرض أحداثه المشتبه بها'}</span>
+          </button>
+          </div>
+          <div class="ai-slot"></div>
+        </div>
+      </div>
+      </div></div>
+    </td>
+  `;
+  const aiBtn = bd.querySelector('.ai-btn');
+  const aiSlot = bd.querySelector('.ai-slot');
+  const cached = aiExplanations[r.bidder_id];
+  if (cached && cached.lang === (isEn ? 'en' : 'ar')) {
+    renderExplanation(aiSlot, cached, isEn);
+  }
+  aiBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    requestExplanation(r, aiBtn, aiSlot, isEn);
+  });
+
+  // ينقل المشرف مباشرةً إلى أحداث هذا المزايد المشتبه بها
+  bd.querySelector('.events-btn').addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    const input = document.getElementById('flagSearch');
+    input.value = r.bidder_id;
+    input.dispatchEvent(new Event('input'));
+    document.querySelectorAll('#decisionFilters button').forEach(b =>
+      b.classList.toggle('active', b.dataset.decfilter === 'all'));
+    currentDecisionFilter = 'all';
+    renderFlaggedTable();
+    const panel = document.getElementById('flaggedPanel');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    panel.classList.remove('flash');
+    void panel.offsetWidth;
+    panel.classList.add('flash');
+  });
+  tr.after(bd);
+  tr.classList.add('open');
+  // فرض إعادة تخطيط قبل إضافة الصنف حتى تعمل الحركة دون الاعتماد على
+  // requestAnimationFrame (لا تعمل إطاراته في التبويبات غير المرسومة).
+  const wrap = bd.querySelector('.breakdown-wrap');
+  void wrap.offsetHeight;
+  wrap.classList.add('open');
+}
+
+// ===== تفسير سبب المخاطرة (Claude) =====
+const aiExplanations = {};   // bidder_id -> { explanation, source, lang }
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function renderExplanation(slot, data, isEn) {
+  const engineName = data.source === 'claude' ? 'Claude'
+    : data.source === 'gemini' ? 'Gemini'
+    : null;
+  const isLocal = engineName === null;
+  const tag = isLocal
+    ? (isEn ? 'Local explanation' : 'تفسير محلي')
+    : engineName + (data.model ? ' · ' + data.model : '');
+  // سبب التفسير المحلي يُعرض كما هو فعلًا: مفتاح غير مضبوط أم فشل نداء المزوّد
+  const noKey = /no AI key configured/i.test(data.fallbackReason || '');
+  const note = isLocal
+    ? (noKey
+        ? (isEn
+            ? 'Generated locally from the same scoring weights — no AI key is configured.'
+            : 'مبني محليًا من نفس أوزان المؤشر — لم يُضبط مفتاح الذكاء الاصطناعي.')
+        : (isEn
+            ? 'The AI provider call failed, so this is the local fallback. Press the button again to retry.'
+            : 'تعذّر نداء مزوّد الذكاء الاصطناعي، وهذا تفسير محلي بديل. اضغط الزر مجددًا لإعادة المحاولة.'))
+    : (isEn
+        ? 'Generated by ' + engineName + ' from this bidder’s numbers only.'
+        : 'صيغ بواسطة ' + engineName + ' اعتمادًا على أرقام هذا المزايد فقط.');
+  const detail = (isLocal && !noKey && data.fallbackReason)
+    ? '<span class="ai-reason" title="' + escapeHtml(data.fallbackReason) + '">' +
+      escapeHtml(data.fallbackReason.slice(0, 120)) + '</span>'
+    : '';
+  slot.innerHTML =
+    '<div class="ai-result">' +
+      '<div class="ai-head">' +
+        '<span class="ai-tag' + (isLocal ? ' local' : '') + '">' + tag + '</span>' +
+        '<span>' + note + '</span>' + detail +
+      '</div>' +
+      escapeHtml(data.explanation) +
+    '</div>';
+}
+
+async function requestExplanation(r, btn, slot, isEn) {
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ai-spinner"></span><span>' +
+    (isEn ? 'Analyzing…' : 'جارٍ التحليل…') + '</span>';
+  slot.innerHTML = '';
+
+  try {
+    const res = await fetch('/api/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lang: isEn ? 'en' : 'ar',
+        bidder_id: r.bidder_id,
+        risk_score: r.risk_score,
+        risk_level: r.risk_level,
+        risk_level_en: r.risk_level_en,
+        events_count: r.events_count,
+        anomaly_events: r.anomaly_events,
+        anomaly_ratio: r.anomaly_ratio,
+        escalation_count: r.escalation_count,
+        prior_unpaid_wins: r.prior_unpaid_wins,
+        prior_payment_defaults: r.prior_payment_defaults,
+        guarantee_ratio: r.guarantee_ratio,
+        data_completeness: r.data_completeness,
+        factors: r.factors,
+        auctions_involved: r.auctions_involved
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      const msg = (isEn && data.error_en ? data.error_en : data.error) ||
+        (isEn ? 'Could not generate the explanation.' : 'تعذّر إنشاء التفسير.');
+      slot.innerHTML = '<div class="ai-result" style="border-inline-start-color:var(--danger);color:var(--danger);">' + icon('alert') + ' ' + escapeHtml(msg) + '</div>';
+      return;
+    }
+    const record = {
+      explanation: data.explanation,
+      source: data.source,
+      model: data.model,
+      fallbackReason: data.fallback_reason,
+      lang: isEn ? 'en' : 'ar',
+    };
+    aiExplanations[r.bidder_id] = record;
+    renderExplanation(slot, record, isEn);
+  } catch (err) {
+    slot.innerHTML = '<div class="ai-result" style="border-inline-start-color:var(--danger);color:var(--danger);">' + icon('alert') + ' ' + escapeHtml(err.message) + '</div>';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+document.querySelectorAll('.filters button[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filters button[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRiskFilter = btn.dataset.filter;
+    if (lastData) renderRiskTable(lastData.bidder_risk || []);
+  });
+});
+
+document.getElementById('riskSearch').addEventListener('input', (e) => {
+  currentRiskSearch = e.target.value;
+  if (lastData) renderRiskTable(lastData.bidder_risk || []);
+});
+
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    currentSort = currentSort.key === key ? { key, dir: -currentSort.dir } : { key, dir: -1 };
+    if (lastData) renderRiskTable(lastData.bidder_risk || []);
+  });
+});
+
+// ===== جدول الأحداث المشتبه بها =====
+function renderFlaggedTable() {
+  const isEn = isEnglish();
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  let list = [...lastFlaggedRows];
+  if (currentDecisionFilter !== 'all') {
+    list = list.filter(r => getDecision(r) === currentDecisionFilter);
+  }
+  if (currentFlagSearch.trim()) {
+    const q = currentFlagSearch.trim().toLowerCase();
+    list = list.filter(r =>
+      String(r.auction_id ?? '').toLowerCase().includes(q) ||
+      String(r.bidder_id ?? '').toLowerCase().includes(q)
+    );
+  }
+
+  document.getElementById('flagCountBadge').textContent =
+    (isEn ? `${list.length} of ${lastFlaggedRows.length} events` : `${list.length} من ${lastFlaggedRows.length} حدث`);
+
+  list.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'flag anim-row';
+    tr.style.animationDelay = Math.min(idx, 14) * 22 + 'ms';
+    const current = getDecision(r);
+    tr.innerHTML = `
+      <td>${r.auction_id ?? '-'}</td>
+      <td>${r.bidder_id ?? '-'}</td>
+      <td>${r.bid_amount ?? '-'}</td>
+      <td>${r.event_time ?? '-'}</td>
+      <td>${Number(r.anomaly_score).toFixed(3)}</td>
+      <td>
+        <div class="decision-btns">
+          <button class="confirm ${current === 'confirmed' ? 'active' : ''}" data-action="confirmed">${icon('alert', 'sm')}<span>${isEn ? 'Confirm manipulation' : 'تأكيد تلاعب'}</span></button>
+          <button class="dismiss ${current === 'dismissed' ? 'active' : ''}" data-action="dismissed">${icon('check', 'sm')}<span>${isEn ? 'Dismiss' : 'إلغاء الشبهة'}</span></button>
+        </div>
+      </td>
+    `;
+    const btns = tr.querySelectorAll('.decision-btns button');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setDecision(r, btn.dataset.action);
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setStep(3);
+        if (currentDecisionFilter !== 'all') renderFlaggedTable();
+      });
+    });
+    tbody.appendChild(tr);
+  });
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">${isEn ? 'No matching flagged events' : 'لا توجد أحداث مشتبه بها مطابقة'}</td></tr>`;
+  }
+}
+
+document.querySelectorAll('#decisionFilters button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#decisionFilters button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDecisionFilter = btn.dataset.decfilter;
+    renderFlaggedTable();
+  });
+});
+
+document.getElementById('flagSearch').addEventListener('input', (e) => {
+  currentFlagSearch = e.target.value;
+  renderFlaggedTable();
+});
+
+// ===== الرسم البياني: توزيع درجات الشذوذ =====
+function drawChart(rows) {
+  const scores = rows.map(r => r.anomaly_score).filter(v => typeof v === 'number' && !isNaN(v));
+  const canvas = document.getElementById('scoreChart');
+  const isEn = isEnglish();
+
+  if (typeof Chart === 'undefined') {
+    canvas.parentElement.innerHTML = `<div class="error-box">${isEn ? 'Could not load the charting library.' : 'تعذر تحميل مكتبة الرسوم البيانية.'}</div>`;
+    return;
+  }
+  if (scores.length === 0) return;
+
+  const bins = 20;
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const width = (max - min) / bins || 1;
+  const counts = new Array(bins).fill(0);
+  scores.forEach(s => {
+    let idx = Math.floor((s - min) / width);
+    if (idx >= bins) idx = bins - 1;
+    if (idx < 0) idx = 0;
+    counts[idx]++;
+  });
+  const labels = counts.map((_, i) => (min + i * width).toFixed(2));
+
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const gridColor = isLight ? '#dfe2e8' : '#262a35';
+  const tickColor = isLight ? '#5b6270' : '#9aa0ab';
+
+  const ctx = canvas.getContext('2d');
+  if (scoreChartInstance) scoreChartInstance.destroy();
+  scoreChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: isEn ? 'Number of events' : 'عدد الأحداث',
+        data: counts,
+        backgroundColor: '#d4a24c',
+        borderRadius: 4,
+        maxBarThickness: 22
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 850, easing: 'easeOutQuart' },
+      animations: { y: { from: 0 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => (isEn ? 'Score ≈ ' : 'الدرجة ≈ ') + items[0].label,
+            label: (item) => (isEn ? `${item.raw} events` : `${item.raw} حدث`)
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }, grid: { color: gridColor } },
+        y: { ticks: { color: tickColor, precision: 0 }, grid: { color: gridColor }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ===== الرسم البياني: توزيع المزايدين حسب المستوى =====
+function drawLevelChart(bidderRisk) {
+  const canvas = document.getElementById('levelChart');
+  const legendEl = document.getElementById('levelLegend');
+  const isEn = isEnglish();
+  if (typeof Chart === 'undefined') return;
+
+  const counts = { 'مرتفع': 0, 'متوسط': 0, 'منخفض': 0 };
+  bidderRisk.forEach(r => { if (counts[r.risk_level] !== undefined) counts[r.risk_level]++; });
+
+  const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const colors = [cssVar('--danger'), cssVar('--warn2'), cssVar('--safe')];
+  const labels = isEn ? ['High', 'Medium', 'Low'] : ['مرتفع', 'متوسط', 'منخفض'];
+  const data = [counts['مرتفع'], counts['متوسط'], counts['منخفض']];
+
+  const ctx = canvas.getContext('2d');
+  if (levelChartInstance) levelChartInstance.destroy();
+
+  if (data.every(v => v === 0)) {
+    legendEl.innerHTML = `<div style="color:var(--muted);">${isEn ? 'No bidders yet' : 'لا يوجد مزايدون بعد'}</div>`;
+    return;
+  }
+
+  levelChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      animation: { animateRotate: true, animateScale: true, duration: 900, easing: 'easeOutQuart' },
+      onHover: (evt, els) => { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
+      // الضغط على شريحة يصفّي جدول المزايدين على مستواها
+      onClick: (evt, els) => {
+        if (!els.length) return;
+        const levels = ['مرتفع', 'متوسط', 'منخفض'];
+        const level = levels[els[0].index];
+        applyRiskLevelFilter(level);
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.label}: ${item.raw} ` + (isEn ? 'bidders' : 'مزايد')
+          }
+        }
+      }
+    }
+  });
+
+  const total = data.reduce((a, b) => a + b, 0) || 1;
+  legendEl.innerHTML = labels.map((lab, i) =>
+    `<div class="row"><span class="swatch" style="background:${colors[i]}"></span>${lab}: <b style="color:var(--text)">${data[i]}</b> (${Math.round(data[i] / total * 100)}%)</div>`
+  ).join('');
+}
+
+// ===== مسار المزايدات عبر الوقت =====
+let timelineChartInstance = null;
+
+function drawTimelineChart(rows) {
+  const canvas = document.getElementById('timelineChart');
+  const isEn = isEnglish();
+  if (typeof Chart === 'undefined' || !canvas) return;
+
+  // ترتيب زمني ثم فهرسة النقاط (نتفادى مقياس الوقت لعدم الحاجة لمكتبة تواريخ)
+  const ordered = [...rows].sort((a, b) =>
+    String(a.event_time ?? '').localeCompare(String(b.event_time ?? ''))
+  );
+  const normal = [], flagged = [];
+  ordered.forEach((r, i) => {
+    const amount = Number(r.bid_amount);
+    if (!isFinite(amount)) return;
+    const point = { x: i + 1, y: amount, meta: r };
+    (r.anomaly_flag ? flagged : normal).push(point);
+  });
+
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const gridColor = isLight ? '#dfe2e8' : '#262a35';
+  const tickColor = isLight ? '#5b6270' : '#9aa0ab';
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  if (timelineChartInstance) timelineChartInstance.destroy();
+  timelineChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: isEn ? 'Normal bids' : 'مزايدات طبيعية',
+          data: normal,
+          backgroundColor: isLight ? 'rgba(18,122,115,.45)' : 'rgba(47,191,178,.42)',
+          pointRadius: 2.5,
+          pointHoverRadius: 5,
+        },
+        {
+          label: isEn ? 'Flagged bids' : 'مزايدات مشتبه بها',
+          data: flagged,
+          backgroundColor: cssVar('--danger'),
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          pointStyle: 'triangle',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 900, easing: 'easeOutQuart' },
+      interaction: { mode: 'nearest', intersect: true },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: tickColor, usePointStyle: true, boxWidth: 8, font: { size: 11 } },
+        },
+        tooltip: {
+          callbacks: {
+            title: (items) => {
+              const m = items[0].raw.meta;
+              return (isEn ? 'Auction ' : 'المزاد ') + (m.auction_id ?? '-') +
+                ' · ' + (isEn ? 'Bidder ' : 'المزايد ') + (m.bidder_id ?? '-');
+            },
+            label: (item) => {
+              const m = item.raw.meta;
+              const score = Number(m.anomaly_score);
+              return [
+                (isEn ? 'Amount: ' : 'القيمة: ') + (m.bid_amount ?? '-'),
+                (isEn ? 'Time: ' : 'الوقت: ') + (m.event_time ?? '-'),
+                (isEn ? 'Anomaly score: ' : 'درجة الشذوذ: ') + (isFinite(score) ? score.toFixed(3) : '-'),
+              ];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: isEn ? 'Chronological order of bids' : 'ترتيب المزايدات زمنيًا', color: tickColor, font: { size: 11 } },
+          ticks: { color: tickColor, precision: 0, maxTicksLimit: 10 },
+          grid: { color: gridColor },
+        },
+        y: {
+          title: { display: true, text: isEn ? 'Bid amount' : 'قيمة المزايدة', color: tickColor, font: { size: 11 } },
+          ticks: { color: tickColor, maxTicksLimit: 6 },
+          grid: { color: gridColor },
+        },
+      },
+    },
+  });
+}
+
+// ===== إنشاء التقرير الأسبوعي =====
+document.getElementById('reportBtn').addEventListener('click', () => {
+  const isEn = isEnglish();
+  if (!lastData) {
+    showToast(isEn ? 'Upload a data file first.' : 'ارفع ملف بيانات أولاً قبل إنشاء التقرير.', 'error');
+    return;
+  }
+  const { summary, rows, bidder_risk } = lastData;
+  const flagged = rows.filter(r => r.anomaly_flag);
+  const now = new Date().toLocaleString(isEn ? 'en-GB' : 'ar-EG');
+
+  const rowsHtml = flagged.map(r => {
+    const decision = getDecision(r);
+    const decisionLabel = decision === 'confirmed' ? (isEn ? 'Manipulation confirmed' : 'تم تأكيد التلاعب')
+      : decision === 'dismissed' ? (isEn ? 'Suspicion dismissed' : 'تم إلغاء الشبهة')
+      : (isEn ? 'Under review' : 'قيد المراجعة');
+    return '<tr><td>' + (r.auction_id ?? '-') + '</td><td>' + (r.bidder_id ?? '-') + '</td><td>' + (r.bid_amount ?? '-') + '</td><td>' + (r.event_time ?? '-') + '</td><td>' + Number(r.anomaly_score).toFixed(3) + '</td><td>' + decisionLabel + '</td></tr>';
+  }).join('');
+
+  // تفسيرات الذكاء الاصطناعي التي طلبها المشرف تُدرج بالتقرير
+  const explainedIds = Object.keys(aiExplanations);
+  const aiSectionHtml = explainedIds.length === 0 ? '' :
+    '<h3>' + (isEn ? 'AI explanation of the risk' : 'تفسير سبب المخاطرة بالذكاء الاصطناعي') + '</h3>' +
+    explainedIds.map(id => {
+      const rec = aiExplanations[id];
+      const src = rec.source === 'claude' ? 'Claude'
+        : rec.source === 'gemini' ? 'Gemini'
+        : (isEn ? 'Local explanation' : 'تفسير محلي');
+      return '<div class="ai-card"><div class="ai-card-head">' +
+        (isEn ? 'Bidder ' : 'المزايد ') + escapeHtml(id) + ' — <span>' + src + '</span></div>' +
+        '<div class="ai-card-body">' + escapeHtml(rec.explanation) + '</div></div>';
+    }).join('');
+
+  const riskRowsHtml = (bidder_risk || []).map(r => {
+    const level = isEn ? r.risk_level_en : r.risk_level;
+    return '<tr><td>' + r.bidder_id + '</td><td>' + r.risk_score + '</td><td>' + level + '</td><td>' + r.anomaly_ratio + '%</td><td>' + r.escalation_count + '</td><td>' + r.prior_unpaid_wins + '</td></tr>';
+  }).join('');
+
+  const dir = isEn ? 'ltr' : 'rtl';
+  // نافذة التقرير تُفتح فارغة (about:blank) فتحتاج مسارات مطلقة لملفات الخط
+  const fontBase = location.origin + '/assets/fonts/';
+  const reportHtml = '<!DOCTYPE html><html lang="' + (isEn?'en':'ar') + '" dir="' + dir + '"><head><meta charset="UTF-8" /><title>' + (isEn ? 'Mizan weekly report' : 'تقرير ميزان الأسبوعي') + '</title><style>' +
+    "@font-face { font-family: 'Thmanyah'; src: url('" + fontBase + "thmanyahsans-Regular.woff2') format('woff2'); font-weight: 400; }" +
+    "@font-face { font-family: 'Thmanyah'; src: url('" + fontBase + "thmanyahsans-Bold.woff2') format('woff2'); font-weight: 700; }" +
+    "@font-face { font-family: 'Thmanyah Display'; src: url('" + fontBase + "thmanyahserifdisplay-Bold.woff2') format('woff2'); font-weight: 700; }" +
+    "body { font-family: 'Thmanyah', Tahoma, Arial, sans-serif; padding: 40px; color: #1c1f26; }" +
+    "h1 { font-family: 'Thmanyah Display', 'Thmanyah', Georgia, serif; color: #127a73; margin-bottom: 4px; } h3 { color: #b8822f; margin-top: 32px; }" +
+    'table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }' +
+    'th, td { border: 1px solid #ddd; padding: 8px; text-align: ' + (isEn?'left':'right') + '; } th { background: #f4f5f7; }' +
+    'tr:nth-child(even) td { background: #fafafa; }' +
+    '.summary { display: flex; gap: 16px; margin: 20px 0; flex-wrap: wrap; }' +
+    '.box { border: 1px solid #ddd; border-radius: 10px; padding: 12px 18px; min-width: 130px; }' +
+    '.box .label { color: #666; font-size: 12px; } .box .value { font-size: 20px; font-weight: bold; }' +
+    '.meta { color: #666; font-size: 12.5px; }' +
+    '.ai-card { border: 1px solid #ddd; border-' + (isEn ? 'left' : 'right') + ': 3px solid #b8822f; border-radius: 8px; padding: 12px 14px; margin-top: 12px; }' +
+    '.ai-card-head { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: bold; }' +
+    '.ai-card-body { font-size: 13px; line-height: 1.9; white-space: pre-wrap; }' +
+    '@media print { .box, .ai-card { break-inside: avoid; } table { break-inside: auto; } tr { break-inside: avoid; } }' +
+    '</style></head><body>' +
+    '<h1>' + (isEn ? 'Mizan weekly report — auction integrity' : 'تقرير ميزان الأسبوعي — سلامة المزادات') + '</h1>' +
+    '<p class="meta">' + (isEn ? 'Generated: ' : 'تاريخ الإصدار: ') + now + '</p>' +
+    '<div class="summary">' +
+    '<div class="box"><div class="label">' + (isEn?'Total events':'إجمالي الأحداث') + '</div><div class="value">' + summary.total_events + '</div></div>' +
+    '<div class="box"><div class="label">' + (isEn?'Flagged events':'أحداث مشتبه بها') + '</div><div class="value">' + summary.flagged_events + '</div></div>' +
+    '<div class="box"><div class="label">' + (isEn?'High-risk bidders':'مزايدون بمخاطرة مرتفعة') + '</div><div class="value">' + (summary.high_risk_bidders ?? 0) + '</div></div>' +
+    '<div class="box"><div class="label">' + (isEn?'Hash chain':'سلسلة التحقق') + '</div><div class="value">' + (summary.chain_valid ? (isEn?'Valid':'سليمة') : (isEn?'Broken':'مخترقة')) + '</div></div>' +
+    '</div>' +
+    '<h3>' + (isEn ? 'Bidder risk index' : 'مؤشر مخاطرة المزايدين') + '</h3>' +
+    '<table><thead><tr><th>' + (isEn?'Bidder':'المزايد') + '</th><th>' + (isEn?'Score':'الدرجة') + '</th><th>' + (isEn?'Level':'المستوى') + '</th><th>' + (isEn?'% abnormal':'% سلوك شاذ') + '</th><th>' + (isEn?'Unusual raises':'رفع غير معتاد') + '</th><th>' + (isEn?'Unpaid past wins':'فوز سابق بلا سداد') + '</th></tr></thead>' +
+    '<tbody>' + (riskRowsHtml || '<tr><td colspan="6">' + (isEn?'No bidders':'لا يوجد مزايدون') + '</td></tr>') + '</tbody></table>' +
+    aiSectionHtml +
+    '<h3>' + (isEn ? 'Flagged events and supervisor decision' : 'الأحداث المشتبه بها وقرار المسؤول') + '</h3>' +
+    '<table><thead><tr><th>' + (isEn?'Auction':'المزاد') + '</th><th>' + (isEn?'Bidder':'المزايد') + '</th><th>' + (isEn?'Bid amount':'قيمة المزايدة') + '</th><th>' + (isEn?'Time':'وقت الحدث') + '</th><th>' + (isEn?'Anomaly score':'درجة الشذوذ') + '</th><th>' + (isEn?'Decision':'القرار') + '</th></tr></thead>' +
+    '<tbody>' + (rowsHtml || '<tr><td colspan="6">' + (isEn?'No flagged events':'لا توجد أحداث مشتبه بها') + '</td></tr>') + '</tbody></table>' +
+    '<script>window.onload = function(){ window.print(); };<' + '/script>' +
+    '</body></html>';
+
+  const reportWindow = window.open('', '_blank');
+  reportWindow.document.write(reportHtml);
+  reportWindow.document.close();
+  setStep(4);
+});
+</script>
+
+</body>
+</html>
