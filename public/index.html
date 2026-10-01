@@ -828,6 +828,17 @@
   html[dir="ltr"] [data-i18n-hide-en] { display: none; }
   html[dir="ltr"] [data-i18n-hide-ar] { display: inline; }
 </style>
+<style>
+.developer-credit{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:18px 12px;margin-top:16px;border-top:1px solid currentColor;font-size:13px;line-height:1.8;color:inherit;text-align:center;opacity:.9}
+.developer-credit nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:0;padding:0;width:auto;overflow:visible}
+.developer-credit a{color:inherit!important;text-decoration:underline;text-underline-offset:4px;font:inherit}
+.developer-credit a:hover{opacity:.75}
+.developer-credit a:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:2px}
+.developer-credit-en{display:none}
+html[lang="en"] .developer-credit-ar{display:none}
+html[lang="en"] .developer-credit-en{display:inline}
+@media(max-width:600px){.developer-credit{flex-direction:column;gap:4px}}
+</style>
 </head>
 <body>
 
@@ -1139,7 +1150,8 @@
     <span data-i18n-hide-en>سلسلة تحقق SHA-256</span><span data-i18n-hide-ar>SHA-256 verification chain</span>
     <span class="dot-sep">•</span>
     <span data-i18n-hide-en>هذا مؤشر دعم قرار للمراجع البشري وليس حكمًا آليًا بوجود احتيال</span><span data-i18n-hide-ar>A decision-support signal for the human reviewer — not an automated fraud verdict</span>
-  </footer>
+  <div class="developer-credit" aria-label="Developer credits"><span class="developer-credit-ar">تطوير غيد عبدالكريم</span><span class="developer-credit-en">Developed by Gheid Abdulkarim</span><nav aria-label="Developer profiles"><a href="https://github.com/iamghaid" target="_blank" rel="noopener noreferrer">GitHub</a><span aria-hidden="true">·</span><a href="https://www.linkedin.com/in/gheid-abdulkarim-6567872ab" target="_blank" rel="noopener noreferrer">LinkedIn</a></nav></div>
+</footer>
 </main>
 
 <script>
