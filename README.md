@@ -272,3 +272,7 @@ woff2 داخل `public/assets/fonts/` وتُحمّل محليًا بلا أي ا
 - **رسائل خطأ ثنائية اللغة** من الـ API (حقلا `error` و`error_en`).
 - **تجاوب أفضل مع الجوال** وصفحة تسجيل دخول بنفس الهوية البصرية مع خيار
   إظهار/إخفاء كلمة المرور.
+
+
+## Portfolio presentation
+Opening from the portfolio passes `portfolio_lang=en|ar` and `portfolio_theme=light|dark`. Valid link preferences take precedence on entry; the visitor can then change them locally. Embedded previews also accept `portfolio:presentation` messages only from the parent at `https://gheid-mycv.vercel.app`, and update without reloading the project.

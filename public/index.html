@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script src="portfolio-presentation.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ميزان | لوحة التحقق من القدرة على السداد</title>
@@ -1367,6 +1368,11 @@ function applyTheme(theme) {
     next === 'dark' ? (en ? 'Dark' : 'داكن') : (en ? 'Light' : 'فاتح');
 }
 applyTheme(localStorage.getItem('mizan_theme') || 'dark');
+window.PortfolioPresentation?.subscribe(p => {
+  if (p.language) applyLang(p.language);
+  if (p.theme) applyTheme(p.theme);
+  if (lastData) renderResults(lastData, true);
+});
 themeToggle.addEventListener('click', () => {
   const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   applyTheme(current);
