@@ -1144,9 +1144,11 @@
 
 <script>
 // ===== حماية الدخول =====
-if (sessionStorage.getItem('mizan_admin_auth') !== 'true') {
+const isPortfolioDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+if (!isPortfolioDemo && sessionStorage.getItem('mizan_admin_auth') !== 'true') {
   window.location.href = 'login.html';
 }
+if (isPortfolioDemo) document.getElementById('logoutBtn').style.display = 'none';
 document.getElementById('logoutBtn').addEventListener('click', () => {
   sessionStorage.removeItem('mizan_admin_auth');
   window.location.href = 'login.html';
@@ -2316,6 +2318,35 @@ document.getElementById('reportBtn').addEventListener('click', () => {
   reportWindow.document.close();
   setStep(4);
 });
+// Portfolio visitors see the dashboard with explicitly labelled synthetic data.
+async function loadPortfolioDemo() {
+  const notice = document.createElement('div');
+  notice.className = 'error-box';
+  notice.style.borderColor = 'var(--accent)';
+  notice.innerHTML = '<span data-i18n-hide-en>عرض تجريبي ببيانات مولّدة — لا توجد بيانات مزايدين حقيقية أو ربط مباشر بالجهات الحكومية.</span><span data-i18n-hide-ar>Demo with synthetic data — no real bidder records or live government integrations.</span>';
+  uploadBox.before(notice);
+  const retry = document.createElement('button');
+  retry.type = 'button';
+  retry.innerHTML = '<span data-i18n-hide-en>إعادة تحميل بيانات العرض</span><span data-i18n-hide-ar>Reload demo data</span>';
+  retry.addEventListener('click', loadDemoFile);
+  notice.append(retry);
+  async function loadDemoFile() {
+    retry.disabled = true;
+    try {
+      const response = await fetch('/demo/auctions_full.csv');
+      if (!response.ok) throw new Error(isEnglish() ? 'Could not load demo data. Please retry.' : 'تعذّر تحميل بيانات العرض. أعد المحاولة.');
+      await handleFile(new File([await response.blob()], 'mizan-demo.csv', { type: 'text/csv' }));
+      if (lastData) resultsBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+      errorBox.textContent = error.message;
+      emptyState.style.display = 'block';
+    } finally {
+      retry.disabled = false;
+    }
+  }
+  await loadDemoFile();
+}
+if (isPortfolioDemo) loadPortfolioDemo();
 </script>
 
 </body>
