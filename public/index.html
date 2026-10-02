@@ -830,14 +830,15 @@
   html[dir="ltr"] [data-i18n-hide-ar] { display: inline; }
 </style>
 <style>
-.developer-credit{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:22px 12px;margin-top:16px;border-top:1px solid color-mix(in srgb,currentColor 18%,transparent);font-size:13px;font-weight:500;line-height:1.8;color:inherit;text-align:center}
-.developer-credit nav{display:flex;align-items:center;justify-content:center;gap:10px;margin:0;padding:0;width:auto;overflow:visible;direction:ltr}
-.developer-credit a{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;min-width:46px;box-sizing:border-box;padding:0;border:1px solid currentColor;border-radius:9px;background:transparent;color:inherit!important;text-decoration:none;font:inherit;box-shadow:none;transition:transform .18s}
+.developer-credit{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:10px 12px;margin-top:8px;border-top:1px solid color-mix(in srgb,currentColor 10%,transparent);font-size:11px;font-weight:400;line-height:1.4;color:inherit;text-align:center}
+.developer-credit nav{display:flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:0;width:auto;overflow:visible;direction:ltr}
+.developer-credit a{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;box-sizing:border-box;padding:0;border:1px solid currentColor;border-radius:5px;background:transparent;color:inherit!important;text-decoration:none;font:inherit;box-shadow:none;transition:transform .18s}
 .developer-credit .developer-github{background:transparent}
 .developer-credit .developer-linkedin{background:transparent}
-.developer-credit svg{display:block;width:23px;height:23px;flex:none}
+.developer-credit svg{display:block;width:15px;height:15px;flex:none}
 .developer-credit a:hover{transform:translateY(-2px);box-shadow:none}
 .developer-credit a:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+.developer-credit>span{opacity:.7}
 .developer-credit-en{display:none}
 html[lang="en"] .developer-credit-ar{display:none}
 html[lang="en"] .developer-credit-en{display:inline}
